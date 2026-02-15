@@ -1,1 +1,9 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+    --color-contrast: #222222;
+    --color-primary: #fa8112;
+    --color-bg: #f5e7c6;
+    --color-secondary: #faf3e1;
+}

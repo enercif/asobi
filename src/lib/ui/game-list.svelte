@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Game } from "$lib/types/game.type";
+    import { gamesList } from "$lib/games/gameslist";
     import {
         type EmblaCarouselType,
         type EmblaOptionsType,
@@ -7,30 +7,29 @@
     } from "embla-carousel";
     import useEmblaCarousel from "embla-carousel-svelte";
 
-    interface Props {
-        games: Game[];
-    }
-
-    let { games }: Props = $props();
-
-    // Center snapped slide
     let options: EmblaOptionsType = {
         align: "center",
         dragFree: true,
         containScroll: false,
         loop: false,
     };
-
     let plugins: EmblaPluginType[] = [];
-
     let emblaApi: EmblaCarouselType | undefined;
+
+    const maxRot = 15;
+    const maxX = 0;
+    const minScale = 0.92;
+    const minOpacity = 0.75;
 
     let activeSnap = $state(0);
     let scrollSnaps: number[] = $state([]);
 
-    // Per-slide tweened values (rotation/translate/scale/opacity)
     let slideStyles: Array<{ r: number; x: number; s: number; o: number }> = $state([]);
     let isSnapping = $state(false);
+
+    let viewportCenterX = 0;
+
+    let throttle = 2;
 
     function snapToSlide(index: number) {
         emblaApi?.scrollTo(index);
@@ -38,7 +37,6 @@
 
     const setupSnaps = (api: EmblaCarouselType) => {
         scrollSnaps = api.scrollSnapList();
-        // ensure slideStyles matches length immediately
         if (slideStyles.length !== scrollSnaps.length) {
             slideStyles = Array.from({ length: scrollSnaps.length }, () => ({
                 r: 0,
@@ -52,22 +50,14 @@
     const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
     function updateTween(api: EmblaCarouselType) {
+        if (throttle < 2) {
+            throttle++;
+            return;
+        }
+        throttle = 0;
+
         const slides = api.slideNodes();
         if (slides.length === 0) return;
-
-        const viewport = api.rootNode();
-        const viewportRect = viewport.getBoundingClientRect();
-        const viewportCenterX = viewportRect.left + viewportRect.width / 2;
-
-        console.log("Updating tween values, active snap:", api.selectedScrollSnap());
-
-        activeSnap = api.selectedScrollSnap();
-
-        // Tune these values"
-        const maxRot = 15; // degrees at ~1 slide width away
-        const maxX = 0; // px translate at ~1 slide width away
-        const minScale = 0.92; // scale at >= 1 slide width away
-        const minOpacity = 0.75;
 
         slideStyles = slides.map((slide) => {
             const rect = slide.getBoundingClientRect();
@@ -103,20 +93,31 @@
     };
 
     const snapToNearest = (api: EmblaCarouselType) => {
-        console.log("Start snap to nearest");
-
+        activeSnap = api.selectedScrollSnap();
         setTimeout(() => {
             const target = getNearestSnap(api);
-            console.log("Snapping to nearest index:", target);
             isSnapping = true;
             api.scrollTo(target);
             isSnapping = false;
-        }, 500); // reset snapping state after animation duration
+        }, 500);
     };
 
     function setupCarousel(embla: EmblaCarouselType) {
+        const viewport = embla.rootNode();
+        const viewportRect = viewport.getBoundingClientRect();
+        viewportCenterX = viewportRect.left + viewportRect.width / 2;
+
         setupSnaps(embla);
         updateTween(embla);
+    }
+
+    function onScrollEvent(api: EmblaCarouselType) {
+        updateTween(api);
+    }
+
+    function onSelectEvent(api: EmblaCarouselType) {
+        isSnapping ? (isSnapping = false) : snapToNearest(api);
+        updateTween(api);
     }
 
     const onInit = (event: CustomEvent<EmblaCarouselType>) => {
@@ -128,26 +129,17 @@
             setupCarousel(emblaApi!);
         });
 
-        // Smooth during drag and when snapping
-        emblaApi.on("scroll", () => updateTween(emblaApi!));
-        emblaApi.on("select", () => {
-            if (!isSnapping) {
-                snapToNearest(emblaApi!);
-            } else {
-                isSnapping = false;
-            }
-            updateTween(emblaApi!);
-        });
+        emblaApi.on("scroll", () => onScrollEvent(emblaApi!));
+        emblaApi.on("select", () => onSelectEvent(emblaApi!));
     };
 </script>
 
-<!-- Embla -->
 <div class="w-full" use:useEmblaCarousel={{ options, plugins }} onemblaInit={onInit}>
     <div class="flex touch-pan-y touch-pinch-zoom gap-5">
-        {#each games as game, index}
+        {#each gamesList as game, index}
             <a
                 href={game.link}
-                class="slide rounded-2xl w-52 bg-[#A6FAFF] aspect-2/3 basis-[70%] min-w-0 shrink-0 grow-0"
+                class="slide rounded-2xl w-52 aspect-2/3 basis-[70%] min-w-0 shrink-0 grow-0"
                 style="
                             --r: {slideStyles[index]?.r ?? 0}deg;
                             --x: {slideStyles[index]?.x ?? 0}px;
@@ -155,8 +147,11 @@
                             --o: {slideStyles[index]?.o ?? 1};
                         "
             >
-                <!-- Example content -->
-                <div class="p-4 font-bold">{game.name}</div>
+                <img
+                    src={game.cover}
+                    alt={game.name}
+                    class="rounded-2xl w-full h-full object-cover"
+                />
             </a>
         {/each}
     </div>
@@ -184,7 +179,6 @@
         transform-origin: 50% 80%;
         will-change: transform, opacity;
 
-        /* Smooth animation when snapping */
         transition:
             transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
             opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
