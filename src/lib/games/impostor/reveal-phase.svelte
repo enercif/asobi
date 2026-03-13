@@ -85,20 +85,10 @@
     }
 </script>
 
-<div class="flex h-full flex-col gap-8">
-    <div class="flex flex-col gap-3 text-center">
-        <p class="text-sm font-semibold tracking-[0.35em] text-black/45 uppercase">Geheime Karte</p>
+<div class="flex h-full flex-col justify-center gap-6">
+    <div class="flex flex-col items-center gap-2 text-center">
         <h2 class="text-4xl font-bold text-black">{card.player.name}</h2>
         <p class="text-base text-black/60">Spieler {currentPlayerIndex + 1} von {totalPlayers}</p>
-    </div>
-
-    <div class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm">
-        <p class="text-sm font-semibold tracking-[0.3em] text-primary uppercase">
-            Privat weitergeben
-        </p>
-        <p class="mt-2 text-base text-black/65">
-            Gib das Gerät jetzt nur an {card.player.name} weiter.
-        </p>
     </div>
 
     <button
@@ -107,7 +97,6 @@
                 ? "border-primary/20 bg-white text-black"
                 : "border-red-700 bg-red-600 text-white active:scale-[0.99]"
         }`}
-        aria-describedby="reveal-card-instructions"
         aria-pressed={isHoldingCard}
         type="button"
         onpointerdown={handlePointerdown}
@@ -141,25 +130,13 @@
                 {/if}
             </div>
         {:else}
-            <div class="flex flex-col items-center gap-6">
-                <p class="text-sm font-semibold tracking-[0.45em] text-red-100 uppercase">
-                    Freigabe verweigert
-                </p>
+            <div class="flex flex-col items-center justify-center">
                 <p class="text-5xl font-black tracking-[0.35em] text-white uppercase">TOP SECRET</p>
-                <p class="max-w-xs text-base text-red-100">
-                    Gedrückt halten, damit nur du deine Karte siehst.
-                </p>
             </div>
         {/if}
     </button>
 
     <div class="flex flex-col items-center gap-3 text-center">
-        <p id="reveal-card-instructions" class="text-base text-black/60" aria-live="polite">
-            {isHoldingCard
-                ? "Lass los, bevor das Gerät weitergegeben wird."
-                : "Halte die Karte gedrückt, damit nur du dein Geheimnis siehst."}
-        </p>
-
         {#if canAdvance}
             <button
                 class="w-full rounded-xl bg-primary px-6 py-3 text-lg font-semibold text-white"
