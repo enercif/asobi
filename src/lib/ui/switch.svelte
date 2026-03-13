@@ -15,11 +15,9 @@
     bind:ref
     {...restProps}
     class={cn(
-        "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-[#F5E7C6] inline-flex h-7.75 min-h-7.75 w-12.5 cursor-pointer items-center rounded-full px-0.75 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ",
+        "inline-flex h-7.75 min-h-7.75 w-12.5 cursor-pointer items-center rounded-full px-0.75 transition-colors disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-[#F5E7C6] ",
         className,
-    )}
->
+    )}>
     <Switch.Thumb
-        class="bg-white pointer-events-none size-6.25 shrink-0 rounded-full transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0 "
-    />
+        class="pointer-events-none size-6.25 shrink-0 rounded-full bg-white transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0 " />
 </Switch.Root>

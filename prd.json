@@ -1,116 +1,104 @@
 {
-  "worktree": "impostor",
-  "goal": "Implement an Impostor game mode with modern Svelte 5 syntax, clean state management, and small coherent UI components.",
-  "tasks": [
-    {
-      "id": "impostor-domain-model-and-types",
-      "title": "Define Impostor game domain model and shared types",
-      "description": "Create the typed data structures needed for settings, round setup, player reveals, active gameplay, and end-game results so the feature can be built with clean boundaries instead of route-local ad hoc state.",
-      "steps": [
-        "Audit the existing impostor route, category data, and shared types to identify missing structures for game settings and runtime state.",
-        "Add dedicated TypeScript types for players, impostor assignments, reveal cards, timer configuration, selected category words, and completed game results.",
-        "Separate persistent setup input from ephemeral runtime state so the code can reset cleanly between rounds.",
-        "Define helper-friendly types that make it easy to split logic into smaller Svelte 5 components and utility modules.",
-        "Ensure naming stays consistent with the existing codebase and avoids ambiguous state like mixed setup and in-game flags."
-      ],
-      "depends_on": [],
-      "success": true
-    },
-    {
-      "id": "impostor-settings-state-and-validation",
-      "title": "Refactor game settings into validated Svelte 5 state",
-      "description": "Complete the game setup flow so players can configure names, impostor count, timer limits, category selection, and optional impostor hints with predictable validation and derived state.",
-      "steps": [
-        "Extract the current settings logic from the route into well-scoped Svelte 5 state using `$state` and `$derived` values.",
-        "Support player entry, impostor amount, timer selection, category selection, and a toggle for impostor hints.",
-        "Add validation rules for minimum players, valid impostor counts, and required category selection before the game can start.",
-        "Represent random impostor selection and fixed impostor selection in a single normalized configuration shape.",
-        "Keep the settings UI modular by splitting repeated controls into small focused components where appropriate."
-      ],
-      "depends_on": [
-        "impostor-domain-model-and-types"
-      ],
-      "success": true
-    },
-    {
-      "id": "impostor-round-setup-engine",
-      "title": "Build the round setup and assignment engine",
-      "description": "Implement the pure game logic that creates a playable round from the chosen settings, including word selection, impostor assignment, hints, and randomized starting player selection.",
-      "steps": [
-        "Create a pure utility module that selects a random word from the chosen categories and derives optional impostor hints from that word.",
-        "Generate the final impostor count based on fixed or random settings and assign impostor roles to distinct players.",
-        "Produce reveal payloads for each player so normal players see the secret word and impostors see the impostor label plus optional hint.",
-        "Randomly choose the player who starts the discussion round after all reveals are complete.",
-        "Return a normalized round object that the UI can consume without recomputing core game logic inside components."
-      ],
-      "depends_on": [
-        "impostor-settings-state-and-validation"
-      ],
-      "success": true
-    },
-    {
-      "id": "impostor-secret-reveal-flow",
-      "title": "Implement the per-player secret reveal interaction",
-      "description": "Build the handoff flow where each player privately reveals their card by pressing and holding on the screen, sees the word only while pressing, and advances through the full player list.",
-      "steps": [
-        "Create a dedicated reveal phase component that renders the active player's name and a centered redacted `TOP SECRET` card.",
-        "Implement press-and-hold behavior so the redaction lifts and the underlying word or impostor message is visible only during pointer down or touch hold.",
-        "Track whether the current player has revealed their card at least once before enabling the next action.",
-        "Show a `next player` button after the first reveal for each non-final player and advance to the next reveal card on click.",
-        "Replace the final `next player` action with a `start game` button after the last player completes their reveal."
-      ],
-      "depends_on": [
-        "impostor-round-setup-engine"
-      ],
-      "success": true
-    },
-    {
-      "id": "impostor-live-round-timer-screen",
-      "title": "Build the active game screen with circular countdown",
-      "description": "Create the live discussion phase after player reveals, showing the selected starting player, a circular timer with remaining time, and the controls needed to end the round intentionally or automatically.",
-      "steps": [
-        "Create a gameplay phase component that receives the generated round data and selected timer limit.",
-        "Display the randomly chosen starting player prominently when the round begins.",
-        "Implement a circular progress timer that visually fills or depletes according to the remaining time and updates smoothly.",
-        "Expose a `show impostors` action during the round so players can end the game before the timer expires.",
-        "Handle both timer completion and manual round end by transitioning into a single end-game result state."
-      ],
-      "depends_on": [
-        "impostor-secret-reveal-flow"
-      ],
-      "success": true
-    },
-    {
-      "id": "impostor-results-and-replay-flow",
-      "title": "Show impostor results and enable starting the next game",
-      "description": "Finish the mode with a result screen that reveals the impostors, preserves enough round information for players to understand the outcome, and offers a clean way to launch the next round.",
-      "steps": [
-        "Create a result phase component that lists the impostor players and shows the secret word used in the round.",
-        "Ensure the result screen can be reached from both manual `show impostors` and timer expiry without duplicate logic.",
-        "Add a `next game` action that resets only transient round state while preserving reusable settings where helpful.",
-        "Make sure a new round regenerates word selection, impostor assignments, reveal order state, and starting player correctly.",
-        "Keep the state reset deterministic so replaying the mode does not leak data from the previous round."
-      ],
-      "depends_on": [
-        "impostor-live-round-timer-screen"
-      ],
-      "success": true
-    },
-    {
-      "id": "impostor-route-composition-and-polish",
-      "title": "Compose the route from small Svelte 5 components and polish edge cases",
-      "description": "Integrate the full flow into the impostor page using small coherent components, modern Svelte 5 patterns, and UI polish for mobile-first private pass-and-play gameplay.",
-      "steps": [
-        "Split the route into focused components for settings, reveal phase, live round, timer circle, and result state.",
-        "Use modern Svelte 5 syntax consistently and avoid monolithic route files with mixed concerns.",
-        "Polish mobile interactions for press-and-hold reveals, button placement, and pass-to-next-player privacy cues.",
-        "Review accessibility and touch behavior so the reveal interaction works reliably on phones and tablets.",
-        "Run `svelte-check` and fix any type or component issues introduced by the new feature structure."
-      ],
-      "depends_on": [
-        "impostor-results-and-replay-flow"
-      ],
-      "success": true
-    }
-  ]
+    "worktree": "impostor",
+    "goal": "Implement an Impostor game mode with modern Svelte 5 syntax, clean state management, and small coherent UI components.",
+    "tasks": [
+        {
+            "id": "impostor-domain-model-and-types",
+            "title": "Define Impostor game domain model and shared types",
+            "description": "Create the typed data structures needed for settings, round setup, player reveals, active gameplay, and end-game results so the feature can be built with clean boundaries instead of route-local ad hoc state.",
+            "steps": [
+                "Audit the existing impostor route, category data, and shared types to identify missing structures for game settings and runtime state.",
+                "Add dedicated TypeScript types for players, impostor assignments, reveal cards, timer configuration, selected category words, and completed game results.",
+                "Separate persistent setup input from ephemeral runtime state so the code can reset cleanly between rounds.",
+                "Define helper-friendly types that make it easy to split logic into smaller Svelte 5 components and utility modules.",
+                "Ensure naming stays consistent with the existing codebase and avoids ambiguous state like mixed setup and in-game flags."
+            ],
+            "depends_on": [],
+            "success": true
+        },
+        {
+            "id": "impostor-settings-state-and-validation",
+            "title": "Refactor game settings into validated Svelte 5 state",
+            "description": "Complete the game setup flow so players can configure names, impostor count, timer limits, category selection, and optional impostor hints with predictable validation and derived state.",
+            "steps": [
+                "Extract the current settings logic from the route into well-scoped Svelte 5 state using `$state` and `$derived` values.",
+                "Support player entry, impostor amount, timer selection, category selection, and a toggle for impostor hints.",
+                "Add validation rules for minimum players, valid impostor counts, and required category selection before the game can start.",
+                "Represent random impostor selection and fixed impostor selection in a single normalized configuration shape.",
+                "Keep the settings UI modular by splitting repeated controls into small focused components where appropriate."
+            ],
+            "depends_on": ["impostor-domain-model-and-types"],
+            "success": true
+        },
+        {
+            "id": "impostor-round-setup-engine",
+            "title": "Build the round setup and assignment engine",
+            "description": "Implement the pure game logic that creates a playable round from the chosen settings, including word selection, impostor assignment, hints, and randomized starting player selection.",
+            "steps": [
+                "Create a pure utility module that selects a random word from the chosen categories and derives optional impostor hints from that word.",
+                "Generate the final impostor count based on fixed or random settings and assign impostor roles to distinct players.",
+                "Produce reveal payloads for each player so normal players see the secret word and impostors see the impostor label plus optional hint.",
+                "Randomly choose the player who starts the discussion round after all reveals are complete.",
+                "Return a normalized round object that the UI can consume without recomputing core game logic inside components."
+            ],
+            "depends_on": ["impostor-settings-state-and-validation"],
+            "success": true
+        },
+        {
+            "id": "impostor-secret-reveal-flow",
+            "title": "Implement the per-player secret reveal interaction",
+            "description": "Build the handoff flow where each player privately reveals their card by pressing and holding on the screen, sees the word only while pressing, and advances through the full player list.",
+            "steps": [
+                "Create a dedicated reveal phase component that renders the active player's name and a centered redacted `TOP SECRET` card.",
+                "Implement press-and-hold behavior so the redaction lifts and the underlying word or impostor message is visible only during pointer down or touch hold.",
+                "Track whether the current player has revealed their card at least once before enabling the next action.",
+                "Show a `next player` button after the first reveal for each non-final player and advance to the next reveal card on click.",
+                "Replace the final `next player` action with a `start game` button after the last player completes their reveal."
+            ],
+            "depends_on": ["impostor-round-setup-engine"],
+            "success": true
+        },
+        {
+            "id": "impostor-live-round-timer-screen",
+            "title": "Build the active game screen with circular countdown",
+            "description": "Create the live discussion phase after player reveals, showing the selected starting player, a circular timer with remaining time, and the controls needed to end the round intentionally or automatically.",
+            "steps": [
+                "Create a gameplay phase component that receives the generated round data and selected timer limit.",
+                "Display the randomly chosen starting player prominently when the round begins.",
+                "Implement a circular progress timer that visually fills or depletes according to the remaining time and updates smoothly.",
+                "Expose a `show impostors` action during the round so players can end the game before the timer expires.",
+                "Handle both timer completion and manual round end by transitioning into a single end-game result state."
+            ],
+            "depends_on": ["impostor-secret-reveal-flow"],
+            "success": true
+        },
+        {
+            "id": "impostor-results-and-replay-flow",
+            "title": "Show impostor results and enable starting the next game",
+            "description": "Finish the mode with a result screen that reveals the impostors, preserves enough round information for players to understand the outcome, and offers a clean way to launch the next round.",
+            "steps": [
+                "Create a result phase component that lists the impostor players and shows the secret word used in the round.",
+                "Ensure the result screen can be reached from both manual `show impostors` and timer expiry without duplicate logic.",
+                "Add a `next game` action that resets only transient round state while preserving reusable settings where helpful.",
+                "Make sure a new round regenerates word selection, impostor assignments, reveal order state, and starting player correctly.",
+                "Keep the state reset deterministic so replaying the mode does not leak data from the previous round."
+            ],
+            "depends_on": ["impostor-live-round-timer-screen"],
+            "success": true
+        },
+        {
+            "id": "impostor-route-composition-and-polish",
+            "title": "Compose the route from small Svelte 5 components and polish edge cases",
+            "description": "Integrate the full flow into the impostor page using small coherent components, modern Svelte 5 patterns, and UI polish for mobile-first private pass-and-play gameplay.",
+            "steps": [
+                "Split the route into focused components for settings, reveal phase, live round, timer circle, and result state.",
+                "Use modern Svelte 5 syntax consistently and avoid monolithic route files with mixed concerns.",
+                "Polish mobile interactions for press-and-hold reveals, button placement, and pass-to-next-player privacy cues.",
+                "Review accessibility and touch behavior so the reveal interaction works reliably on phones and tablets.",
+                "Run `svelte-check` and fix any type or component issues introduced by the new feature structure."
+            ],
+            "depends_on": ["impostor-results-and-replay-flow"],
+            "success": true
+        }
+    ]
 }

@@ -30,29 +30,27 @@
     ];
 </script>
 
-<div class="h-dvh w-dvw px-5 pt-10 overflow-x-clip md:max-w-2xl md:mx-auto">
+<div class="h-dvh w-dvw overflow-x-clip px-5 pt-10 md:mx-auto md:max-w-2xl">
     {#if page.route.id?.includes("games")}
         {@render children()}
     {:else}
-        <div class="flex flex-col size-full gap-8">
+        <div class="flex size-full flex-col gap-8">
             <div class="flex flex-row items-center justify-between">
                 <p class="text-xl font-bold">Asobi</p>
-                <p class="bg-white px-4 py-1 rounded-lg">Enis</p>
+                <p class="rounded-lg bg-white px-4 py-1">Enis</p>
             </div>
             {@render children()}
         </div>
 
         <div
-            class="absolute bottom-8 left-1/2 -translate-x-1/2 w-fit h-fit bg-contrast items-center flex flex-row rounded-2xl p-1.5 gap-2"
-        >
+            class="absolute bottom-8 left-1/2 flex h-fit w-fit -translate-x-1/2 flex-row items-center gap-2 rounded-2xl bg-contrast p-1.5">
             {#each navigation as navigationItem}
                 <a
                     href={navigationItem.href}
-                    class=" h-14 min-w-14 flex items-center justify-center rounded-xl flex-row gap-2 px-2 transition-[background-color] duration-200 {navigationItem.href ===
+                    class=" flex h-14 min-w-14 flex-row items-center justify-center gap-2 rounded-xl px-2 transition-[background-color] duration-200 {navigationItem.href ===
                     page.route.id
                         ? 'bg-primary text-white'
-                        : 'bg-white text-black'}"
-                >
+                        : 'bg-white text-black'}">
                     <navigationItem.icon size={26} />
                     {#if navigationItem.href === page.route.id}
                         <span class="text-lg font-semibold">{navigationItem.text}</span>
