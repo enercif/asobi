@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DiscussionTimerCircle from "$lib/games/impostor/discussion-timer-circle.svelte";
 	import type { ImpostorRound, ImpostorTimerConfig } from "$lib/types/impostor-game.type";
 
 	type Props = {
@@ -7,9 +8,6 @@
 		onShowImpostors: () => void;
 		onTimerEnd: () => void;
 	};
-
-	const timerCircleRadius = 112;
-	const timerCircleCircumference = 2 * Math.PI * timerCircleRadius;
 
 	let { round, timer, onShowImpostors, onTimerEnd }: Props = $props();
 
@@ -41,7 +39,7 @@
 
 		return Math.max(Math.min((remainingMs ?? 0) / totalDurationMs, 1), 0);
 	});
-	let strokeDashoffset = $derived(timerCircleCircumference * (1 - progress));
+	let strokeDashoffset = $derived(703.7167544041137 * (1 - progress));
 	let timerStatusLabel = $derived.by(() => {
 		if (!timer.enabled) {
 			return "Offen";
@@ -107,42 +105,8 @@
 		</p>
 	</div>
 
-	<div class="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] bg-white px-8 py-10 text-center shadow-sm">
-		<div class="relative flex size-72 items-center justify-center">
-			<svg class="size-full -rotate-90" viewBox="0 0 260 260" aria-hidden="true">
-				<circle
-					cx="130"
-					cy="130"
-					r={timerCircleRadius}
-					fill="none"
-					stroke="currentColor"
-					stroke-width="16"
-					class="text-black/10"
-				/>
-				<circle
-					cx="130"
-					cy="130"
-					r={timerCircleRadius}
-					fill="none"
-					stroke="currentColor"
-					stroke-width="16"
-					stroke-linecap="round"
-					stroke-dasharray={timerCircleCircumference}
-					stroke-dashoffset={strokeDashoffset}
-					class={timer.enabled ? "text-primary" : "text-primary/35"}
-				/>
-			</svg>
-
-			<div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-				<p class="text-sm font-semibold uppercase tracking-[0.35em] text-black/45">{timer.enabled ? "Restzeit" : "Zeitlimit"}</p>
-				<p class="text-5xl font-black text-black tabular-nums">{timerStatusLabel}</p>
-				<p class="max-w-[11rem] text-sm text-black/55">
-					{timer.enabled
-						? `${timer.durationSeconds} Sekunden für die Gesprächsrunde`
-						: "Die Runde läuft ohne automatisches Ende."}
-				</p>
-			</div>
-		</div>
+		<div class="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] bg-white px-8 py-10 text-center shadow-sm">
+			<DiscussionTimerCircle timer={timer} statusLabel={timerStatusLabel} {strokeDashoffset} />
 
 		<div class="flex flex-wrap items-center justify-center gap-2">
 			{#each round.players as player (player.id)}

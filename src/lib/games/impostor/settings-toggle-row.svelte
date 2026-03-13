@@ -7,6 +7,7 @@
 		label: string;
 		description?: string;
 		checked?: boolean;
+		onCheckedChange?: (checked: boolean) => void;
 	};
 
 	let {
@@ -14,6 +15,7 @@
 		label,
 		description,
 		checked = $bindable(false),
+		onCheckedChange,
 	}: Props = $props();
 </script>
 
@@ -29,5 +31,5 @@
 		{/if}
 	</div>
 
-	<Switch class="ml-auto mt-0.5" bind:checked />
+	<Switch class="ml-auto mt-0.5" bind:checked {onCheckedChange} />
 </div>
