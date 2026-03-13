@@ -94,7 +94,7 @@
       "depends_on": [
         "impostor-live-round-timer-screen"
       ],
-      "success": false
+      "success": true
     },
     {
       "id": "impostor-route-composition-and-polish",
