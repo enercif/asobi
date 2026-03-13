@@ -28,6 +28,7 @@
                 "Keep the settings UI modular by splitting repeated controls into small focused components where appropriate."
             ],
             "depends_on": ["impostor-domain-model-and-types"],
+            "status": "done",
             "success": false
         },
         {

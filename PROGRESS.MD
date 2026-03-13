@@ -1,1 +1,2 @@
 - impostor-domain-model-and-types: added shared Impostor domain types for setup, round generation, reveals, runtime discussion state, results, and category word entries.
+- impostor-settings-state-and-validation: refactored the Impostor setup into validated Svelte 5 state with normalized impostor/timer config, category validation, and reusable settings row components.

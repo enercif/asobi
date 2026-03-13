@@ -1,11 +1,19 @@
 <script lang="ts">
     import { impostorCategories } from "$lib/games/impostor/categories";
+    import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
+    import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
+    import SettingsTriggerRow from "$lib/games/impostor/settings-trigger-row.svelte";
+    import type {
+        ImpostorCountConfig,
+        ImpostorGameSetup,
+        ImpostorPlayer,
+        ImpostorTimerConfig,
+    } from "$lib/types/impostor-game.type";
     import Dialog from "$lib/ui/dialog.svelte";
     import Slider from "$lib/ui/slider.svelte";
     import Switch from "$lib/ui/switch.svelte";
     import {
         BookmarkIcon,
-        CheckIcon,
         ChevronLeft,
         CircleDashedIcon,
         CircleQuestionMarkIcon,
@@ -16,57 +24,163 @@
     } from "@lucide/svelte";
 
     const minPlayers = 3;
+    const timerOptions = [60, 120, 180, 300, 600] as const;
 
-    let stared = $state(false);
+    type ImpostorCountMode = ImpostorCountConfig["mode"];
 
-    let player: string[] = $state([""]);
-    let selectedPlayers = $derived(player.slice(0, -1));
-    let playerCount = $derived(selectedPlayers.length);
+    let starred = $state(false);
 
-    let selectedImpostorCount = $state(1);
-    let randomImpostor = $state(false);
-    let randomImpostorRange = $state([1, 2]);
+    let settings = $state({
+        playerInputs: [""],
+        impostorCountMode: "fixed" as ImpostorCountMode,
+        fixedImpostorCount: 1,
+        randomImpostorRange: [1, 2] as [number, number],
+        selectedCategoryIds: impostorCategories[0] ? [impostorCategories[0].id] : [],
+        hintsEnabled: false,
+        timerEnabled: false,
+        timerDurationSeconds: 180,
+    });
 
-    let selectedCategories = $state(["1"]);
+    let players = $derived.by(
+        (): ImpostorPlayer[] =>
+            settings.playerInputs
+                .map((name) => name.trim())
+                .filter((name) => name.length > 0)
+                .map((name, index) => ({
+                    id: `player-${index + 1}`,
+                    name,
+                })),
+    );
+    let playerCount = $derived(players.length);
+    let maxImpostorCount = $derived(Math.max(1, playerCount - 1));
+    let normalizedFixedImpostorCount = $derived(clamp(settings.fixedImpostorCount, 1, maxImpostorCount));
+    let normalizedRandomImpostorRange = $derived.by(() => {
+        const minCount = clamp(Math.min(...settings.randomImpostorRange), 1, maxImpostorCount);
+        const maxCount = clamp(Math.max(...settings.randomImpostorRange), minCount, maxImpostorCount);
+
+        return [minCount, maxCount] as [number, number];
+    });
+
+    let impostorCountConfig = $derived.by(
+        (): ImpostorCountConfig =>
+            settings.impostorCountMode === "random"
+                ? {
+                        mode: "random",
+                        min: normalizedRandomImpostorRange[0],
+                        max: normalizedRandomImpostorRange[1],
+                    }
+                : {
+                        mode: "fixed",
+                        count: normalizedFixedImpostorCount,
+                    },
+    );
+
+    let timerConfig = $derived.by(
+        (): ImpostorTimerConfig =>
+            settings.timerEnabled
+                ? {
+                        enabled: true,
+                        durationSeconds: settings.timerDurationSeconds,
+                    }
+                : {
+                        enabled: false,
+                    },
+    );
+
+    let validationErrors = $derived.by(() => {
+        const errors: string[] = [];
+
+        if (playerCount < minPlayers) {
+            errors.push(`Bitte mindestens ${minPlayers} Spieler hinzufügen`);
+        }
+
+        if (settings.selectedCategoryIds.length === 0) {
+            errors.push("Bitte mindestens eine Kategorie auswählen");
+        }
+
+        if (playerCount >= minPlayers) {
+            if (impostorCountConfig.mode === "fixed") {
+                if (impostorCountConfig.count < 1 || impostorCountConfig.count >= playerCount) {
+                    errors.push("Bitte eine gültige Anzahl an Impostoren auswählen");
+                }
+            } else if (
+                impostorCountConfig.min < 1 ||
+                impostorCountConfig.max >= playerCount ||
+                impostorCountConfig.min > impostorCountConfig.max
+            ) {
+                errors.push("Bitte einen gültigen Impostor-Bereich auswählen");
+            }
+        }
+
+        return errors;
+    });
+
+    let canStart = $derived(validationErrors.length === 0);
+
+    let gameSetup = $derived.by(
+        (): ImpostorGameSetup | null =>
+            canStart
+                ? {
+                        players,
+                        selectedCategoryIds: [...settings.selectedCategoryIds],
+                        impostorCount: impostorCountConfig,
+                        hintsEnabled: settings.hintsEnabled,
+                        timer: timerConfig,
+                    }
+                : null,
+    );
+
+    let impostorCountLabel = $derived.by(() => {
+        if (playerCount < minPlayers) {
+            return "–";
+        }
+
+        if (impostorCountConfig.mode === "fixed") {
+            return impostorCountConfig.count.toString();
+        }
+
+        return impostorCountConfig.min === impostorCountConfig.max
+            ? impostorCountConfig.min.toString()
+            : `${impostorCountConfig.min} - ${impostorCountConfig.max}`;
+    });
+
+    let timerLabel = $derived(settings.timerEnabled ? formatTimer(settings.timerDurationSeconds) : "Aus");
+
+    function clamp(value: number, min: number, max: number) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    function formatTimer(seconds: number) {
+        return seconds < 60 || seconds % 60 !== 0
+            ? `${seconds}s`
+            : `${seconds / 60} min`;
+    }
 
     function updatePlayer(index: number, value: string) {
-        player[index] = value;
+        const nextInputs = [...settings.playerInputs];
+        nextInputs[index] = value;
 
-        const lastIndex = player.length - 1;
+        const visibleInputs = nextInputs.filter((name, inputIndex) => {
+            const isLastInput = inputIndex === nextInputs.length - 1;
 
-        if (index === lastIndex && value.trim() !== "") {
-            player.push("");
-        }
-
-        player = player.filter((p, i) => {
-            if (i === player.length - 1) return true;
-            return p.trim() !== "";
+            return isLastInput || name.trim() !== "";
         });
+
+        settings.playerInputs = visibleInputs.at(-1)?.trim() === "" ? visibleInputs : [...visibleInputs, ""];
     }
 
-    function getImpostorCount(): string {
-        if (playerCount < minPlayers) {
-            return "0";
-        }
-
-        if (randomImpostor) {
-            const min = randomImpostorRange[0];
-            const max = randomImpostorRange[1];
-            return min === max ? min.toString() : `${min} - ${max}`;
-        } else {
-            return selectedImpostorCount.toString();
-        }
+    function toggleCategory(categoryId: string) {
+        settings.selectedCategoryIds = settings.selectedCategoryIds.includes(categoryId)
+            ? settings.selectedCategoryIds.filter((id) => id !== categoryId)
+            : [...settings.selectedCategoryIds, categoryId];
     }
 
-    function onCategorySelect(categoryId: string) {
-        if (selectedCategories.includes(categoryId)) {
-            if (selectedCategories.length === 1) {
-                return;
-            }
-            selectedCategories = selectedCategories.filter((id) => id !== categoryId);
-        } else {
-            selectedCategories.push(categoryId);
-        }
+    function updateImpostorMode(enabled: boolean) {
+        settings.impostorCountMode = enabled ? "random" : "fixed";
+    }
+
+    function updateRandomImpostorRange(value: number[]) {
+        settings.randomImpostorRange = [value[0] ?? 1, value[1] ?? value[0] ?? 1];
     }
 </script>
 
@@ -89,11 +203,11 @@
 
             <button
                 class="size-12 flex items-center justify-center"
-                onclick={() => (stared = !stared)}
+                onclick={() => (starred = !starred)}
             >
                 <BookmarkIcon
                     size={28}
-                    class={stared
+                    class={starred
                         ? "fill-primary text-primary duration-150 transition-all"
                         : "fill-none text-black duration-150 transition-all"}
                 />
@@ -104,22 +218,20 @@
     <div class="flex flex-col rounded-2xl bg-white text-xl">
         <Dialog title="Spieler">
             {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
+                <SettingsTriggerRow label="Spieler" value={playerCount}>
                     <UserIcon size={28} />
-                    <p>Spieler</p>
-                    <p class="ml-auto">{playerCount}</p>
-                </div>
+                </SettingsTriggerRow>
             {/snippet}
 
             <div class="size-full overflow-y-auto flex flex-col gap-3">
-                {#each player as p, i}
+                {#each settings.playerInputs as playerName, i (i)}
                     <input
                         placeholder={`Spieler ${i + 1}`}
                         class="text-xl border-none outline-none animate-in animate-out fade-in zoom-in-50"
-                        value={p}
+                        value={playerName}
                         oninput={(e) => updatePlayer(i, e.currentTarget.value)}
                     />
-                    {#if i + 1 != player.length}
+                    {#if i + 1 != settings.playerInputs.length}
                         <div class="mx-2 border-b border-contrast/50"></div>
                     {/if}
                 {/each}
@@ -130,14 +242,9 @@
 
         <Dialog title="Impostor">
             {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
+                <SettingsTriggerRow label="Impostor" value={impostorCountLabel}>
                     <HatGlassesIcon size={28} />
-                    <p>Impostor</p>
-
-                    <p class="ml-auto">
-                        {getImpostorCount()}
-                    </p>
-                </div>
+                </SettingsTriggerRow>
             {/snippet}
 
             <div class="flex flex-col gap-3">
@@ -148,51 +255,45 @@
                 {:else}
                     <div class="flex flex-row items-center justify-between">
                         <p class="text-xl">Zufällige Anzahl?</p>
-                        <Switch bind:checked={randomImpostor} />
+                        <Switch
+                            checked={settings.impostorCountMode === "random"}
+                            onCheckedChange={updateImpostorMode}
+                        />
                     </div>
 
                     <div class="mx-2 border-b border-contrast/50"></div>
-                    {#if randomImpostor}
+                    {#if settings.impostorCountMode === "random"}
                         <div class="w-full px-3 pt-10 pb-3">
                             <Slider
                                 step={1}
                                 min={1}
-                                max={playerCount - 1}
-                                bind:value={randomImpostorRange}
+                                max={maxImpostorCount}
+                                value={normalizedRandomImpostorRange}
+                                onValueChange={updateRandomImpostorRange}
                                 type="multiple"
                             />
                         </div>
 
-                        <!--Change to Method-->
-                        {#if randomImpostorRange[0] === randomImpostorRange[1]}
+                        {#if normalizedRandomImpostorRange[0] === normalizedRandomImpostorRange[1]}
                             <p class="text-center text text-black">
-                                {randomImpostorRange[0]} Impostor
+                                {normalizedRandomImpostorRange[0]} Impostor
                             </p>
                         {:else}
                             <p class="text-center text text-black">
-                                {randomImpostorRange[0]} - {randomImpostorRange[1]} Impostor
+                                {normalizedRandomImpostorRange[0]} - {normalizedRandomImpostorRange[1]} Impostor
                             </p>
                         {/if}
                     {:else}
                         <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                            {#each selectedPlayers as p, i}
-                                {#if i < playerCount - 1}
-                                    <button
-                                        class="text-xl flex flex-row items-center justify-between w-full"
-                                        onclick={() => (selectedImpostorCount = i + 1)}
-                                    >
-                                        <p>
-                                            {i + 1} Impostor
-                                        </p>
+                            {#each Array.from({ length: maxImpostorCount }, (_, index) => index + 1) as impostorCount, i (impostorCount)}
+                                <SettingsOptionRow
+                                    label={`${impostorCount} Impostor`}
+                                    selected={impostorCount === normalizedFixedImpostorCount}
+                                    onclick={() => (settings.fixedImpostorCount = impostorCount)}
+                                />
 
-                                        {#if i + 1 == selectedImpostorCount}
-                                            <p class=" text-primary"><CheckIcon /></p>
-                                        {/if}
-                                    </button>
-
-                                    {#if i != playerCount - 2}
-                                        <div class="mx-2 border-b border-contrast/50"></div>
-                                    {/if}
+                                {#if i !== maxImpostorCount - 1}
+                                    <div class="mx-2 border-b border-contrast/50"></div>
                                 {/if}
                             {/each}
                         </div>
@@ -205,57 +306,80 @@
 
         <Dialog title="Kategorien">
             {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
+                <SettingsTriggerRow label="Kategorien" value={settings.selectedCategoryIds.length}>
                     <CircleDashedIcon size={28} />
-                    <p>Kategorien</p>
-
-                    <p class="ml-auto">{selectedCategories.length}</p>
-                </div>
+                </SettingsTriggerRow>
             {/snippet}
 
             <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                {#each impostorCategories as impostorCategory, i}
-                    <button
-                        class="text-xl flex flex-row items-center justify-between w-full"
-                        onclick={() => onCategorySelect(impostorCategory.id)}
-                    >
-                        <div class="flex flex-col items-start gap-1">
-                            <p>
-                                {impostorCategory.name}
-                            </p>
-                            <p class="text-sm">
-                                {impostorCategory.description}
-                            </p>
-                        </div>
-
-                        {#if selectedCategories.includes(impostorCategory.id)}
-                            <p class=" text-primary"><CheckIcon /></p>
-                        {/if}
-                    </button>
+                {#each impostorCategories as impostorCategory, i (impostorCategory.id)}
+                    <SettingsOptionRow
+                        label={impostorCategory.name}
+                        description={impostorCategory.description}
+                        selected={settings.selectedCategoryIds.includes(impostorCategory.id)}
+                        onclick={() => toggleCategory(impostorCategory.id)}
+                    />
 
                     {#if i != impostorCategories.length - 1}
                         <div class="mx-2 border-b border-contrast/50"></div>
                     {/if}
                 {/each}
+
+                {#if settings.selectedCategoryIds.length === 0}
+                    <p class="text-sm text-red-500">Bitte mindestens eine Kategorie auswählen</p>
+                {/if}
             </div>
         </Dialog>
 
         <div class="mx-8 border-b border-contrast/50"></div>
 
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
+        <SettingsToggleRow
+            bind:checked={settings.hintsEnabled}
+            label="Hinweise"
+            description="Impostoren erhalten optional einen Hinweis zum gesuchten Wort."
+        >
             <SearchIcon size={28} />
-            <p>Hinweise</p>
-            <Switch class="ml-auto" />
-        </div>
+        </SettingsToggleRow>
 
         <div class="mx-8 border-b border-contrast/50"></div>
 
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
-            <TimerIcon size={28} />
-            <p>Zeitlimit</p>
+        <Dialog title="Zeitlimit">
+            {#snippet trigger()}
+                <SettingsTriggerRow label="Zeitlimit" value={timerLabel}>
+                    <TimerIcon size={28} />
+                </SettingsTriggerRow>
+            {/snippet}
 
-            <Switch class="ml-auto" />
-        </div>
+            <div class="flex flex-col gap-3">
+                <SettingsToggleRow
+                    bind:checked={settings.timerEnabled}
+                    label="Zeitlimit aktivieren"
+                    description="Begrenzt die Diskussionsphase auf eine feste Dauer."
+                >
+                    <TimerIcon size={28} />
+                </SettingsToggleRow>
+
+                {#if settings.timerEnabled}
+                    <div class="mx-2 border-b border-contrast/50"></div>
+
+                    <div class="flex flex-col gap-3">
+                        {#each timerOptions as timerOption, i (timerOption)}
+                            <SettingsOptionRow
+                                label={formatTimer(timerOption)}
+                                selected={timerOption === settings.timerDurationSeconds}
+                                onclick={() => (settings.timerDurationSeconds = timerOption)}
+                            />
+
+                            {#if i !== timerOptions.length - 1}
+                                <div class="mx-2 border-b border-contrast/50"></div>
+                            {/if}
+                        {/each}
+                    </div>
+                {:else}
+                    <p class="text-sm text-black/50">Der Timer ist aktuell deaktiviert.</p>
+                {/if}
+            </div>
+        </Dialog>
     </div>
 
     <div class="flex flex-col rounded-2xl bg-white text-xl">
@@ -266,12 +390,14 @@
     </div>
 
     <div class="flex flex-col gap-2 items-center w-full mt-auto mb-10">
-        {#if playerCount < minPlayers}
-            <p class="text-red-500">Bitte mindestens {minPlayers} Spieler hinzufügen</p>
-        {/if}
+        {#each validationErrors as validationError (validationError)}
+            <p class="text-center text-red-500">{validationError}</p>
+        {/each}
+
         <button
             class="bg-primary text-white rounded-xl px-6 py-3 font-semibold disabled:bg-primary/50 w-full"
-            disabled={playerCount < minPlayers}
+            disabled={!canStart || gameSetup === null}
+            type="button"
         >
             Spiel starten
         </button>
