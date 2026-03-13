@@ -20,3 +20,11 @@ export type {
 } from "$lib/types/impostor-game.type";
 
 export type { ImpostorCategory } from "$lib/types/impostor-category.type";
+
+export {
+	createImpostorRound,
+	resolveFinalImpostorCount,
+	selectRoundWord,
+} from "$lib/games/impostor/round";
+
+export type { CreateImpostorRoundOptions } from "$lib/games/impostor/round";

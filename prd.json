@@ -31,9 +31,9 @@
             "status": "done",
             "success": false
         },
-        {
-            "id": "impostor-round-setup-engine",
-            "title": "Build the round setup and assignment engine",
+  {
+    "id": "impostor-round-setup-engine",
+    "title": "Build the round setup and assignment engine",
             "description": "Implement the pure game logic that creates a playable round from the chosen settings, including word selection, impostor assignment, hints, and randomized starting player selection.",
             "steps": [
                 "Create a pure utility module that selects a random word from the chosen categories and derives optional impostor hints from that word.",
@@ -43,8 +43,8 @@
                 "Return a normalized round object that the UI can consume without recomputing core game logic inside components."
             ],
             "depends_on": ["impostor-settings-state-and-validation"],
-            "success": false
-        },
+    "success": true
+  },
         {
             "id": "impostor-secret-reveal-flow",
             "title": "Implement the per-player secret reveal interaction",
