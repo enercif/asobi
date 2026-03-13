@@ -1,0 +1,1 @@
+- impostor-domain-model-and-types: added shared Impostor domain types for setup, round generation, reveals, runtime discussion state, results, and category word entries.
