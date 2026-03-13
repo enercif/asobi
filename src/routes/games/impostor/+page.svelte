@@ -1,14 +1,18 @@
 <script lang="ts">
-    import { impostorCategories } from "$lib/games/impostor/categories";
-    import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
-    import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
-    import SettingsTriggerRow from "$lib/games/impostor/settings-trigger-row.svelte";
-    import type {
-        ImpostorCountConfig,
-        ImpostorGameSetup,
-        ImpostorPlayer,
-        ImpostorTimerConfig,
-    } from "$lib/types/impostor-game.type";
+	import { createImpostorRound } from "$lib/games/impostor/round";
+	import { impostorCategories } from "$lib/games/impostor/categories";
+	import RevealPhase from "$lib/games/impostor/reveal-phase.svelte";
+	import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
+	import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
+	import SettingsTriggerRow from "$lib/games/impostor/settings-trigger-row.svelte";
+	import type {
+		ImpostorCountConfig,
+		ImpostorGamePhase,
+		ImpostorGameSetup,
+		ImpostorPlayer,
+		ImpostorRound,
+		ImpostorTimerConfig,
+	} from "$lib/types/impostor-game.type";
     import Dialog from "$lib/ui/dialog.svelte";
     import Slider from "$lib/ui/slider.svelte";
     import Switch from "$lib/ui/switch.svelte";
@@ -26,9 +30,14 @@
     const minPlayers = 3;
     const timerOptions = [60, 120, 180, 300, 600] as const;
 
-    type ImpostorCountMode = ImpostorCountConfig["mode"];
+	type ImpostorCountMode = ImpostorCountConfig["mode"];
 
-    let starred = $state(false);
+	let starred = $state(false);
+	let phase = $state<"setup" | ImpostorGamePhase>("setup");
+	let currentRound = $state<ImpostorRound | null>(null);
+	let currentRevealPlayerIndex = $state(0);
+	let revealedPlayerIds = $state<ImpostorPlayer["id"][]>([]);
+	let roundError = $state<string | null>(null);
 
     let settings = $state({
         playerInputs: [""],
@@ -144,7 +153,31 @@
             : `${impostorCountConfig.min} - ${impostorCountConfig.max}`;
     });
 
-    let timerLabel = $derived(settings.timerEnabled ? formatTimer(settings.timerDurationSeconds) : "Aus");
+	let timerLabel = $derived(settings.timerEnabled ? formatTimer(settings.timerDurationSeconds) : "Aus");
+	let currentRevealCard = $derived.by(() => {
+		if (phase !== "reveal" || currentRound === null) {
+			return null;
+		}
+
+		return currentRound.revealCards[currentRevealPlayerIndex] ?? null;
+	});
+	let hasCurrentPlayerRevealed = $derived.by(() => {
+		const activePlayerId = currentRevealCard?.player.id;
+
+		return activePlayerId ? revealedPlayerIds.includes(activePlayerId) : false;
+	});
+	let isLastRevealPlayer = $derived.by(
+		() => currentRound !== null && currentRevealPlayerIndex === currentRound.revealCards.length - 1,
+	);
+	let discussionStartingPlayer = $derived.by(() => {
+		if (currentRound === null) {
+			return null;
+		}
+
+		const { players: roundPlayers, startingPlayerId } = currentRound;
+
+		return roundPlayers.find((player) => player.id === startingPlayerId) ?? null;
+	});
 
     function clamp(value: number, min: number, max: number) {
         return Math.min(Math.max(value, min), max);
@@ -179,16 +212,58 @@
         settings.impostorCountMode = enabled ? "random" : "fixed";
     }
 
-    function updateRandomImpostorRange(value: number[]) {
-        settings.randomImpostorRange = [value[0] ?? 1, value[1] ?? value[0] ?? 1];
-    }
+	function updateRandomImpostorRange(value: number[]) {
+		settings.randomImpostorRange = [value[0] ?? 1, value[1] ?? value[0] ?? 1];
+	}
+
+	function startRevealFlow() {
+		if (gameSetup === null) {
+			return;
+		}
+
+		try {
+			currentRound = createImpostorRound(gameSetup);
+			currentRevealPlayerIndex = 0;
+			revealedPlayerIds = [];
+			phase = "reveal";
+			roundError = null;
+		} catch (error) {
+			roundError = error instanceof Error ? error.message : "Die Runde konnte nicht gestartet werden.";
+		}
+	}
+
+	function markCurrentPlayerAsRevealed() {
+		const activePlayerId = currentRevealCard?.player.id;
+
+		if (!activePlayerId || revealedPlayerIds.includes(activePlayerId)) {
+			return;
+		}
+
+		revealedPlayerIds = [...revealedPlayerIds, activePlayerId];
+	}
+
+	function goToNextRevealPlayer() {
+		if (!hasCurrentPlayerRevealed || currentRound === null || isLastRevealPlayer) {
+			return;
+		}
+
+		currentRevealPlayerIndex += 1;
+	}
+
+	function startDiscussionPhase() {
+		if (!hasCurrentPlayerRevealed || currentRound === null) {
+			return;
+		}
+
+		phase = "discussion";
+	}
 </script>
 
 <div class="flex flex-col gap-20 h-full">
-    <div class="relative flex flex-row items-center justify-between">
-        <a class="bg-white rounded-lg size-12 flex items-center justify-center" href="/">
-            <ChevronLeft size={28} />
-        </a>
+	<div class="relative flex flex-row items-center justify-between">
+		<a class="bg-white rounded-lg size-12 flex items-center justify-center" href="/">
+			<ChevronLeft size={28} />
+		</a>
 
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <h1 class="text-3xl font-bold">Impostor</h1>
@@ -212,194 +287,220 @@
                         : "fill-none text-black duration-150 transition-all"}
                 />
             </button>
-        </div>
-    </div>
+		</div>
+	</div>
 
-    <div class="flex flex-col rounded-2xl bg-white text-xl">
-        <Dialog title="Spieler">
-            {#snippet trigger()}
-                <SettingsTriggerRow label="Spieler" value={playerCount}>
-                    <UserIcon size={28} />
-                </SettingsTriggerRow>
-            {/snippet}
+	{#if phase === "setup"}
+		<div class="flex flex-col rounded-2xl bg-white text-xl">
+			<Dialog title="Spieler">
+				{#snippet trigger()}
+					<SettingsTriggerRow label="Spieler" value={playerCount}>
+						<UserIcon size={28} />
+					</SettingsTriggerRow>
+				{/snippet}
 
-            <div class="size-full overflow-y-auto flex flex-col gap-3">
-                {#each settings.playerInputs as playerName, i (i)}
-                    <input
-                        placeholder={`Spieler ${i + 1}`}
-                        class="text-xl border-none outline-none animate-in animate-out fade-in zoom-in-50"
-                        value={playerName}
-                        oninput={(e) => updatePlayer(i, e.currentTarget.value)}
-                    />
-                    {#if i + 1 != settings.playerInputs.length}
-                        <div class="mx-2 border-b border-contrast/50"></div>
-                    {/if}
-                {/each}
-            </div>
-        </Dialog>
+				<div class="size-full overflow-y-auto flex flex-col gap-3">
+					{#each settings.playerInputs as playerName, i (i)}
+						<input
+							placeholder={`Spieler ${i + 1}`}
+							class="text-xl border-none outline-none animate-in animate-out fade-in zoom-in-50"
+							value={playerName}
+							oninput={(e) => updatePlayer(i, e.currentTarget.value)}
+						/>
+						{#if i + 1 != settings.playerInputs.length}
+							<div class="mx-2 border-b border-contrast/50"></div>
+						{/if}
+					{/each}
+				</div>
+			</Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+			<div class="mx-8 border-b border-contrast/50"></div>
 
-        <Dialog title="Impostor">
-            {#snippet trigger()}
-                <SettingsTriggerRow label="Impostor" value={impostorCountLabel}>
-                    <HatGlassesIcon size={28} />
-                </SettingsTriggerRow>
-            {/snippet}
+			<Dialog title="Impostor">
+				{#snippet trigger()}
+					<SettingsTriggerRow label="Impostor" value={impostorCountLabel}>
+						<HatGlassesIcon size={28} />
+					</SettingsTriggerRow>
+				{/snippet}
 
-            <div class="flex flex-col gap-3">
-                {#if playerCount < minPlayers}
-                    <p class="text-start text-black/50">
-                        Bitte mindestens {minPlayers} Spieler hinzufügen
-                    </p>
-                {:else}
-                    <div class="flex flex-row items-center justify-between">
-                        <p class="text-xl">Zufällige Anzahl?</p>
-                        <Switch
-                            checked={settings.impostorCountMode === "random"}
-                            onCheckedChange={updateImpostorMode}
-                        />
-                    </div>
+				<div class="flex flex-col gap-3">
+					{#if playerCount < minPlayers}
+						<p class="text-start text-black/50">
+							Bitte mindestens {minPlayers} Spieler hinzufügen
+						</p>
+					{:else}
+						<div class="flex flex-row items-center justify-between">
+							<p class="text-xl">Zufällige Anzahl?</p>
+							<Switch
+								checked={settings.impostorCountMode === "random"}
+								onCheckedChange={updateImpostorMode}
+							/>
+						</div>
 
-                    <div class="mx-2 border-b border-contrast/50"></div>
-                    {#if settings.impostorCountMode === "random"}
-                        <div class="w-full px-3 pt-10 pb-3">
-                            <Slider
-                                step={1}
-                                min={1}
-                                max={maxImpostorCount}
-                                value={normalizedRandomImpostorRange}
-                                onValueChange={updateRandomImpostorRange}
-                                type="multiple"
-                            />
-                        </div>
+						<div class="mx-2 border-b border-contrast/50"></div>
+						{#if settings.impostorCountMode === "random"}
+							<div class="w-full px-3 pt-10 pb-3">
+								<Slider
+									step={1}
+									min={1}
+									max={maxImpostorCount}
+									value={normalizedRandomImpostorRange}
+									onValueChange={updateRandomImpostorRange}
+									type="multiple"
+								/>
+							</div>
 
-                        {#if normalizedRandomImpostorRange[0] === normalizedRandomImpostorRange[1]}
-                            <p class="text-center text text-black">
-                                {normalizedRandomImpostorRange[0]} Impostor
-                            </p>
-                        {:else}
-                            <p class="text-center text text-black">
-                                {normalizedRandomImpostorRange[0]} - {normalizedRandomImpostorRange[1]} Impostor
-                            </p>
-                        {/if}
-                    {:else}
-                        <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                            {#each Array.from({ length: maxImpostorCount }, (_, index) => index + 1) as impostorCount, i (impostorCount)}
-                                <SettingsOptionRow
-                                    label={`${impostorCount} Impostor`}
-                                    selected={impostorCount === normalizedFixedImpostorCount}
-                                    onclick={() => (settings.fixedImpostorCount = impostorCount)}
-                                />
+							{#if normalizedRandomImpostorRange[0] === normalizedRandomImpostorRange[1]}
+								<p class="text-center text text-black">
+									{normalizedRandomImpostorRange[0]} Impostor
+								</p>
+							{:else}
+								<p class="text-center text text-black">
+									{normalizedRandomImpostorRange[0]} - {normalizedRandomImpostorRange[1]} Impostor
+								</p>
+							{/if}
+						{:else}
+							<div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
+								{#each Array.from({ length: maxImpostorCount }, (_, index) => index + 1) as impostorCount, i (impostorCount)}
+									<SettingsOptionRow
+										label={`${impostorCount} Impostor`}
+										selected={impostorCount === normalizedFixedImpostorCount}
+										onclick={() => (settings.fixedImpostorCount = impostorCount)}
+									/>
 
-                                {#if i !== maxImpostorCount - 1}
-                                    <div class="mx-2 border-b border-contrast/50"></div>
-                                {/if}
-                            {/each}
-                        </div>
-                    {/if}
-                {/if}
-            </div>
-        </Dialog>
+									{#if i !== maxImpostorCount - 1}
+										<div class="mx-2 border-b border-contrast/50"></div>
+									{/if}
+								{/each}
+							</div>
+						{/if}
+					{/if}
+				</div>
+			</Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+			<div class="mx-8 border-b border-contrast/50"></div>
 
-        <Dialog title="Kategorien">
-            {#snippet trigger()}
-                <SettingsTriggerRow label="Kategorien" value={settings.selectedCategoryIds.length}>
-                    <CircleDashedIcon size={28} />
-                </SettingsTriggerRow>
-            {/snippet}
+			<Dialog title="Kategorien">
+				{#snippet trigger()}
+					<SettingsTriggerRow label="Kategorien" value={settings.selectedCategoryIds.length}>
+						<CircleDashedIcon size={28} />
+					</SettingsTriggerRow>
+				{/snippet}
 
-            <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                {#each impostorCategories as impostorCategory, i (impostorCategory.id)}
-                    <SettingsOptionRow
-                        label={impostorCategory.name}
-                        description={impostorCategory.description}
-                        selected={settings.selectedCategoryIds.includes(impostorCategory.id)}
-                        onclick={() => toggleCategory(impostorCategory.id)}
-                    />
+				<div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
+					{#each impostorCategories as impostorCategory, i (impostorCategory.id)}
+						<SettingsOptionRow
+							label={impostorCategory.name}
+							description={impostorCategory.description}
+							selected={settings.selectedCategoryIds.includes(impostorCategory.id)}
+							onclick={() => toggleCategory(impostorCategory.id)}
+						/>
 
-                    {#if i != impostorCategories.length - 1}
-                        <div class="mx-2 border-b border-contrast/50"></div>
-                    {/if}
-                {/each}
+						{#if i != impostorCategories.length - 1}
+							<div class="mx-2 border-b border-contrast/50"></div>
+						{/if}
+					{/each}
 
-                {#if settings.selectedCategoryIds.length === 0}
-                    <p class="text-sm text-red-500">Bitte mindestens eine Kategorie auswählen</p>
-                {/if}
-            </div>
-        </Dialog>
+					{#if settings.selectedCategoryIds.length === 0}
+						<p class="text-sm text-red-500">Bitte mindestens eine Kategorie auswählen</p>
+					{/if}
+				</div>
+			</Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+			<div class="mx-8 border-b border-contrast/50"></div>
 
-        <SettingsToggleRow
-            bind:checked={settings.hintsEnabled}
-            label="Hinweise"
-            description="Impostoren erhalten optional einen Hinweis zum gesuchten Wort."
-        >
-            <SearchIcon size={28} />
-        </SettingsToggleRow>
+			<SettingsToggleRow
+				bind:checked={settings.hintsEnabled}
+				label="Hinweise"
+				description="Impostoren erhalten optional einen Hinweis zum gesuchten Wort."
+			>
+				<SearchIcon size={28} />
+			</SettingsToggleRow>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+			<div class="mx-8 border-b border-contrast/50"></div>
 
-        <Dialog title="Zeitlimit">
-            {#snippet trigger()}
-                <SettingsTriggerRow label="Zeitlimit" value={timerLabel}>
-                    <TimerIcon size={28} />
-                </SettingsTriggerRow>
-            {/snippet}
+			<Dialog title="Zeitlimit">
+				{#snippet trigger()}
+					<SettingsTriggerRow label="Zeitlimit" value={timerLabel}>
+						<TimerIcon size={28} />
+					</SettingsTriggerRow>
+				{/snippet}
 
-            <div class="flex flex-col gap-3">
-                <SettingsToggleRow
-                    bind:checked={settings.timerEnabled}
-                    label="Zeitlimit aktivieren"
-                    description="Begrenzt die Diskussionsphase auf eine feste Dauer."
-                >
-                    <TimerIcon size={28} />
-                </SettingsToggleRow>
+				<div class="flex flex-col gap-3">
+					<SettingsToggleRow
+						bind:checked={settings.timerEnabled}
+						label="Zeitlimit aktivieren"
+						description="Begrenzt die Diskussionsphase auf eine feste Dauer."
+					>
+						<TimerIcon size={28} />
+					</SettingsToggleRow>
 
-                {#if settings.timerEnabled}
-                    <div class="mx-2 border-b border-contrast/50"></div>
+					{#if settings.timerEnabled}
+						<div class="mx-2 border-b border-contrast/50"></div>
 
-                    <div class="flex flex-col gap-3">
-                        {#each timerOptions as timerOption, i (timerOption)}
-                            <SettingsOptionRow
-                                label={formatTimer(timerOption)}
-                                selected={timerOption === settings.timerDurationSeconds}
-                                onclick={() => (settings.timerDurationSeconds = timerOption)}
-                            />
+						<div class="flex flex-col gap-3">
+							{#each timerOptions as timerOption, i (timerOption)}
+								<SettingsOptionRow
+									label={formatTimer(timerOption)}
+									selected={timerOption === settings.timerDurationSeconds}
+									onclick={() => (settings.timerDurationSeconds = timerOption)}
+								/>
 
-                            {#if i !== timerOptions.length - 1}
-                                <div class="mx-2 border-b border-contrast/50"></div>
-                            {/if}
-                        {/each}
-                    </div>
-                {:else}
-                    <p class="text-sm text-black/50">Der Timer ist aktuell deaktiviert.</p>
-                {/if}
-            </div>
-        </Dialog>
-    </div>
+								{#if i !== timerOptions.length - 1}
+									<div class="mx-2 border-b border-contrast/50"></div>
+								{/if}
+							{/each}
+						</div>
+					{:else}
+						<p class="text-sm text-black/50">Der Timer ist aktuell deaktiviert.</p>
+					{/if}
+				</div>
+			</Dialog>
+		</div>
 
-    <div class="flex flex-col rounded-2xl bg-white text-xl">
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
-            <UserIcon size={28} />
-            <p>Geräte</p>
-        </div>
-    </div>
+		<div class="flex flex-col rounded-2xl bg-white text-xl">
+			<div class="flex flex-row items-center gap-3 px-6 py-4">
+				<UserIcon size={28} />
+				<p>Geräte</p>
+			</div>
+		</div>
 
-    <div class="flex flex-col gap-2 items-center w-full mt-auto mb-10">
-        {#each validationErrors as validationError (validationError)}
-            <p class="text-center text-red-500">{validationError}</p>
-        {/each}
+		<div class="flex flex-col gap-2 items-center w-full mt-auto mb-10">
+			{#each validationErrors as validationError (validationError)}
+				<p class="text-center text-red-500">{validationError}</p>
+			{/each}
 
-        <button
-            class="bg-primary text-white rounded-xl px-6 py-3 font-semibold disabled:bg-primary/50 w-full"
-            disabled={!canStart || gameSetup === null}
-            type="button"
-        >
-            Spiel starten
-        </button>
-    </div>
+			{#if roundError}
+				<p class="text-center text-red-500">{roundError}</p>
+			{/if}
+
+			<button
+				class="bg-primary text-white rounded-xl px-6 py-3 font-semibold disabled:bg-primary/50 w-full"
+				disabled={!canStart || gameSetup === null}
+				type="button"
+				onclick={startRevealFlow}
+			>
+				Spiel starten
+			</button>
+		</div>
+	{:else if phase === "reveal" && currentRevealCard}
+		<RevealPhase
+			card={currentRevealCard}
+			currentPlayerIndex={currentRevealPlayerIndex}
+			totalPlayers={currentRound?.revealCards.length ?? 0}
+			canAdvance={hasCurrentPlayerRevealed}
+			isLastPlayer={isLastRevealPlayer}
+			onReveal={markCurrentPlayerAsRevealed}
+			onNextPlayer={goToNextRevealPlayer}
+			onStartGame={startDiscussionPhase}
+		/>
+	{:else if phase === "discussion" && currentRound}
+		<div class="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] bg-white px-8 py-10 text-center">
+			<p class="text-sm font-semibold uppercase tracking-[0.35em] text-primary">Diskussion</p>
+			<h2 class="text-4xl font-bold text-black">Alle Karten wurden verteilt</h2>
+			<p class="max-w-md text-lg text-black/65">
+				{discussionStartingPlayer?.name ?? "Ein Spieler"} beginnt die Runde.
+			</p>
+		</div>
+	{/if}
 </div>
