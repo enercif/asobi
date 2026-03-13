@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ImpostorTimerConfig } from "$lib/types/impostor-game.type";
+    import type { ImpostorTimerConfig } from "$lib/games/impostor/types";
 
     type Props = {
         timer: ImpostorTimerConfig;

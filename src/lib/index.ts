@@ -3,23 +3,19 @@
 export type {
     ImpostorAssignment,
     ImpostorCountConfig,
-    ImpostorDiscussionState,
     ImpostorGamePhase,
     ImpostorGameResult,
     ImpostorGameSetup,
     ImpostorPlayer,
     ImpostorRevealCard,
-    ImpostorRevealState,
     ImpostorRole,
     ImpostorRound,
     ImpostorRoundEndReason,
-    ImpostorRuntimeState,
     ImpostorSelectedWord,
     ImpostorTimerConfig,
     ImpostorWordEntry,
-} from "$lib/types/impostor-game.type";
-
-export type { ImpostorCategory } from "$lib/types/impostor-category.type";
+    ImpostorCategory,
+} from "$lib/games/impostor/types";
 
 export {
     createImpostorRound,

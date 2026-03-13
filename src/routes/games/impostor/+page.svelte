@@ -3,11 +3,11 @@
         createImpostorSettingsState,
         setImpostorSettingsState,
     } from "$lib/games/impostor/settings-state.svelte";
-    import DiscussionPhase from "$lib/games/impostor/discussion-phase.svelte";
-    import ResultsPhase from "$lib/games/impostor/results-phase.svelte";
+    import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
+    import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
     import { createImpostorRound } from "$lib/games/impostor/round";
-    import RevealPhase from "$lib/games/impostor/reveal-phase.svelte";
-    import SettingsPhase from "$lib/games/impostor/settings-phase.svelte";
+    import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
+    import SettingsPhase from "$lib/games/impostor/ui/settings-phase.svelte";
     import type {
         ImpostorGamePhase,
         ImpostorGameResult,
@@ -16,7 +16,7 @@
         ImpostorRound,
         ImpostorRoundEndReason,
         ImpostorTimerConfig,
-    } from "$lib/types/impostor-game.type";
+    } from "$lib/games/impostor/types";
     import Dialog from "$lib/ui/dialog.svelte";
     import { BookmarkIcon, ChevronLeft, CircleQuestionMarkIcon } from "@lucide/svelte";
 

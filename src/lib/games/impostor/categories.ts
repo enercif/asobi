@@ -1,4 +1,4 @@
-import type { ImpostorCategory } from "$lib/types/impostor-category.type";
+import type { ImpostorCategory } from "$lib/games/impostor/types";
 
 type ImpostorRawWordEntry = [word: string, hintOne: string, hintTwo: string, hintThree: string];
 

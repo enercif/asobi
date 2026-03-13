@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ImpostorRevealCard } from "$lib/types/impostor-game.type";
+    import type { ImpostorRevealCard } from "$lib/games/impostor/types";
 
     type Props = {
         card: ImpostorRevealCard;

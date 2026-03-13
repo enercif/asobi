@@ -1,6 +1,6 @@
 <script lang="ts">
-    import DiscussionTimerCircle from "$lib/games/impostor/discussion-timer-circle.svelte";
-    import type { ImpostorRound, ImpostorTimerConfig } from "$lib/types/impostor-game.type";
+    import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion-timer-circle.svelte";
+    import type { ImpostorRound, ImpostorTimerConfig } from "$lib/games/impostor/types";
 
     type Props = {
         round: ImpostorRound;

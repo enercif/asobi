@@ -1,14 +1,14 @@
 import { impostorCategories } from "$lib/games/impostor/categories";
-import type { ImpostorCategory } from "$lib/types/impostor-category.type";
 import type {
     ImpostorAssignment,
+    ImpostorCategory,
     ImpostorGameSetup,
     ImpostorPlayer,
     ImpostorRevealCard,
     ImpostorRole,
     ImpostorRound,
     ImpostorSelectedWord,
-} from "$lib/types/impostor-game.type";
+} from "$lib/games/impostor/types";
 
 type RandomNumberGenerator = () => number;
 

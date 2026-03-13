@@ -1,4 +1,4 @@
-import type { ImpostorWordEntry } from "$lib/types/impostor-game.type";
+import type { ImpostorWordEntry } from "./game";
 
 export type ImpostorCategory = {
     id: string;

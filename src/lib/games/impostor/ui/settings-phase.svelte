@@ -5,9 +5,9 @@
         getImpostorSettingsState,
         impostorRandomCountMinPlayers,
     } from "$lib/games/impostor/settings-state.svelte";
-    import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
-    import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
-    import SettingsTriggerRow from "$lib/games/impostor/settings-trigger-row.svelte";
+    import SettingsOptionRow from "$lib/games/impostor/ui/settings-option-row.svelte";
+    import SettingsToggleRow from "$lib/games/impostor/ui/settings-toggle-row.svelte";
+    import SettingsTriggerRow from "$lib/games/impostor/ui/settings-trigger-row.svelte";
     import Dialog from "$lib/ui/dialog.svelte";
     import Slider from "$lib/ui/slider.svelte";
     import {

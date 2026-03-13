@@ -6,7 +6,7 @@ import type {
     ImpostorGameSetup,
     ImpostorPlayer,
     ImpostorTimerConfig,
-} from "$lib/types/impostor-game.type";
+} from "$lib/games/impostor/types";
 
 const defaultCategoryIds = impostorCategories[0] ? [impostorCategories[0].id] : [];
 

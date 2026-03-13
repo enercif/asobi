@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ImpostorGameResult } from "$lib/types/impostor-game.type";
+    import type { ImpostorGameResult } from "$lib/games/impostor/types";
 
     type Props = {
         result: ImpostorGameResult;

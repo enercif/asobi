@@ -57,12 +57,6 @@ export type ImpostorRevealCard = {
     hint?: string;
 };
 
-export type ImpostorRevealState = {
-    currentPlayerIndex: number;
-    revealedPlayerIds: ImpostorPlayer["id"][];
-    cards: ImpostorRevealCard[];
-};
-
 export type ImpostorRound = {
     players: ImpostorPlayer[];
     selectedWord: ImpostorSelectedWord;
@@ -71,20 +65,7 @@ export type ImpostorRound = {
     startingPlayerId: ImpostorPlayer["id"];
 };
 
-export type ImpostorDiscussionState = {
-    startingPlayerId: ImpostorPlayer["id"];
-    startedAt: number | null;
-    remainingSeconds: number | null;
-    timer: ImpostorTimerConfig;
-};
-
 export type ImpostorGamePhase = "reveal" | "discussion" | "results";
-
-export type ImpostorRuntimeState = {
-    phase: ImpostorGamePhase;
-    reveal: ImpostorRevealState;
-    discussion: ImpostorDiscussionState | null;
-};
 
 export type ImpostorRoundEndReason = "manual" | "timer";
 
