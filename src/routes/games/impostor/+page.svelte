@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { createImpostorRound } from "$lib/games/impostor/round";
-    import { impostorCategories } from "$lib/games/impostor/categories";
+    import {
+        createImpostorSettingsState,
+        setImpostorSettingsState,
+    } from "$lib/games/impostor/settings-state.svelte";
     import DiscussionPhase from "$lib/games/impostor/discussion-phase.svelte";
     import ResultsPhase from "$lib/games/impostor/results-phase.svelte";
+    import { createImpostorRound } from "$lib/games/impostor/round";
     import RevealPhase from "$lib/games/impostor/reveal-phase.svelte";
     import SettingsPhase from "$lib/games/impostor/settings-phase.svelte";
     import type {
-        ImpostorCountConfig,
         ImpostorGamePhase,
         ImpostorGameResult,
         ImpostorGameSetup,
@@ -18,10 +20,8 @@
     import Dialog from "$lib/ui/dialog.svelte";
     import { BookmarkIcon, ChevronLeft, CircleQuestionMarkIcon } from "@lucide/svelte";
 
-    const minPlayers = 3;
-    const timerOptions = [60, 120, 180, 300, 600] as const;
-
-    type ImpostorCountMode = ImpostorCountConfig["mode"];
+    const settingsState = createImpostorSettingsState();
+    setImpostorSettingsState(settingsState);
 
     let starred = $state(false);
     let phase = $state<"setup" | ImpostorGamePhase>("setup");
@@ -30,127 +30,7 @@
     let activeTimerConfig = $state<ImpostorTimerConfig>({ enabled: false });
     let currentRevealPlayerIndex = $state(0);
     let revealedPlayerIds = $state<ImpostorPlayer["id"][]>([]);
-    let roundError = $state<string | null>(null);
 
-    let settings = $state({
-        playerInputs: [""],
-        impostorCountMode: "fixed" as ImpostorCountMode,
-        fixedImpostorCount: 1,
-        randomImpostorRange: [1, 2] as [number, number],
-        selectedCategoryIds: impostorCategories[0] ? [impostorCategories[0].id] : [],
-        hintsEnabled: false,
-        timerEnabled: false,
-        timerDurationSeconds: 180,
-    });
-
-    let players = $derived.by((): ImpostorPlayer[] =>
-        settings.playerInputs
-            .map((name) => name.trim())
-            .filter((name) => name.length > 0)
-            .map((name, index) => ({
-                id: `player-${index + 1}`,
-                name,
-            })),
-    );
-    let playerCount = $derived(players.length);
-    let maxImpostorCount = $derived(Math.max(1, playerCount - 1));
-    let normalizedFixedImpostorCount = $derived(
-        clamp(settings.fixedImpostorCount, 1, maxImpostorCount),
-    );
-    let normalizedRandomImpostorRange = $derived.by(() => {
-        const minCount = clamp(Math.min(...settings.randomImpostorRange), 1, maxImpostorCount);
-        const maxCount = clamp(
-            Math.max(...settings.randomImpostorRange),
-            minCount,
-            maxImpostorCount,
-        );
-
-        return [minCount, maxCount] as [number, number];
-    });
-
-    let impostorCountConfig = $derived.by(
-        (): ImpostorCountConfig =>
-            settings.impostorCountMode === "random"
-                ? {
-                      mode: "random",
-                      min: normalizedRandomImpostorRange[0],
-                      max: normalizedRandomImpostorRange[1],
-                  }
-                : {
-                      mode: "fixed",
-                      count: normalizedFixedImpostorCount,
-                  },
-    );
-
-    let timerConfig = $derived.by(
-        (): ImpostorTimerConfig =>
-            settings.timerEnabled
-                ? {
-                      enabled: true,
-                      durationSeconds: settings.timerDurationSeconds,
-                  }
-                : {
-                      enabled: false,
-                  },
-    );
-
-    let validationErrors = $derived.by(() => {
-        const errors: string[] = [];
-
-        if (playerCount < minPlayers) {
-            errors.push(`Bitte mindestens ${minPlayers} Spieler hinzufügen`);
-        }
-
-        if (settings.selectedCategoryIds.length === 0) {
-            errors.push("Bitte mindestens eine Kategorie auswählen");
-        }
-
-        if (playerCount >= minPlayers) {
-            if (impostorCountConfig.mode === "fixed") {
-                if (impostorCountConfig.count < 1 || impostorCountConfig.count >= playerCount) {
-                    errors.push("Bitte eine gültige Anzahl an Impostoren auswählen");
-                }
-            } else if (
-                impostorCountConfig.min < 1 ||
-                impostorCountConfig.max >= playerCount ||
-                impostorCountConfig.min > impostorCountConfig.max
-            ) {
-                errors.push("Bitte einen gültigen Impostor-Bereich auswählen");
-            }
-        }
-
-        return errors;
-    });
-
-    let canStart = $derived(validationErrors.length === 0);
-    let gameSetup = $derived.by((): ImpostorGameSetup | null =>
-        canStart
-            ? {
-                  players,
-                  selectedCategoryIds: [...settings.selectedCategoryIds],
-                  impostorCount: impostorCountConfig,
-                  hintsEnabled: settings.hintsEnabled,
-                  timer: timerConfig,
-              }
-            : null,
-    );
-
-    let impostorCountLabel = $derived.by(() => {
-        if (playerCount < minPlayers) {
-            return "–";
-        }
-
-        if (impostorCountConfig.mode === "fixed") {
-            return impostorCountConfig.count.toString();
-        }
-
-        return impostorCountConfig.min === impostorCountConfig.max
-            ? impostorCountConfig.min.toString()
-            : `${impostorCountConfig.min} - ${impostorCountConfig.max}`;
-    });
-    let timerLabel = $derived(
-        settings.timerEnabled ? formatTimer(settings.timerDurationSeconds) : "Aus",
-    );
     let currentRevealCard = $derived.by(() => {
         if (phase !== "reveal" || currentRound === null) {
             return null;
@@ -169,14 +49,6 @@
             currentRevealPlayerIndex === currentRound.revealCards.length - 1,
     );
 
-    function clamp(value: number, min: number, max: number) {
-        return Math.min(Math.max(value, min), max);
-    }
-
-    function formatTimer(seconds: number) {
-        return seconds < 60 || seconds % 60 !== 0 ? `${seconds}s` : `${seconds / 60} min`;
-    }
-
     function beginRound(setup: ImpostorGameSetup) {
         currentRound = createImpostorRound(setup);
         currentResult = null;
@@ -186,10 +58,12 @@
         currentRevealPlayerIndex = 0;
         revealedPlayerIds = [];
         phase = "reveal";
-        roundError = null;
+        settingsState.clearRoundError();
     }
 
     function startRevealFlow() {
+        const gameSetup = settingsState.gameSetup;
+
         if (gameSetup === null) {
             return;
         }
@@ -197,12 +71,15 @@
         try {
             beginRound(gameSetup);
         } catch (error) {
-            roundError =
-                error instanceof Error ? error.message : "Die Runde konnte nicht gestartet werden.";
+            settingsState.setRoundError(
+                error instanceof Error ? error.message : "Die Runde konnte nicht gestartet werden.",
+            );
         }
     }
 
     function startNextGame() {
+        const gameSetup = settingsState.gameSetup;
+
         if (gameSetup === null) {
             return;
         }
@@ -210,10 +87,11 @@
         try {
             beginRound(gameSetup);
         } catch (error) {
-            roundError =
+            settingsState.setRoundError(
                 error instanceof Error
                     ? error.message
-                    : "Die nächste Runde konnte nicht gestartet werden.";
+                    : "Die nächste Runde konnte nicht gestartet werden.",
+            );
             phase = "setup";
         }
     }
@@ -315,28 +193,7 @@
     </div>
 
     {#if phase === "setup"}
-        <SettingsPhase
-            bind:playerInputs={settings.playerInputs}
-            bind:impostorCountMode={settings.impostorCountMode}
-            bind:fixedImpostorCount={settings.fixedImpostorCount}
-            bind:randomImpostorRange={settings.randomImpostorRange}
-            bind:selectedCategoryIds={settings.selectedCategoryIds}
-            bind:hintsEnabled={settings.hintsEnabled}
-            bind:timerEnabled={settings.timerEnabled}
-            bind:timerDurationSeconds={settings.timerDurationSeconds}
-            {playerCount}
-            {minPlayers}
-            {maxImpostorCount}
-            {normalizedFixedImpostorCount}
-            {normalizedRandomImpostorRange}
-            {impostorCountLabel}
-            {timerLabel}
-            {timerOptions}
-            {validationErrors}
-            {roundError}
-            {canStart}
-            canSubmit={gameSetup !== null}
-            onStart={startRevealFlow} />
+        <SettingsPhase onStart={startRevealFlow} />
     {:else if phase === "reveal" && currentRevealCard}
         <RevealPhase
             card={currentRevealCard}
