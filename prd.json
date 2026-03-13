@@ -110,7 +110,7 @@
       "depends_on": [
         "impostor-results-and-replay-flow"
       ],
-      "success": false
+      "success": true
     }
   ]
 }
