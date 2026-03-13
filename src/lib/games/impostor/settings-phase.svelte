@@ -3,6 +3,7 @@
     import {
         formatImpostorTimer,
         getImpostorSettingsState,
+        impostorRandomCountMinPlayers,
     } from "$lib/games/impostor/settings-state.svelte";
     import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
     import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
@@ -63,32 +64,36 @@
             {/snippet}
 
             <div class="flex flex-col gap-3">
-                <SettingsToggleRow
-                    checked={settingsState.impostorCountMode === "random"}
-                    label="Zufällige Anzahl"
-                    description="Legt den Bereich pro Runde neu fest."
-                    onCheckedChange={settingsState.updateImpostorMode}>
-                    <HatGlassesIcon size={28} />
-                </SettingsToggleRow>
+                {#if settingsState.canUseRandomImpostorCount}
+                    <SettingsToggleRow
+                        checked={settingsState.effectiveImpostorCountMode === "random"}
+                        label="Zufällige Anzahl"
+                        description="Legt den Bereich pro Runde neu fest."
+                        onCheckedChange={settingsState.updateImpostorMode}>
+                        <HatGlassesIcon size={28} />
+                    </SettingsToggleRow>
 
-                <div class="mx-2 border-b border-contrast/35"></div>
+                    <div class="mx-2 border-b border-contrast/35"></div>
+                {/if}
 
                 {#if settingsState.playerCount < settingsState.minPlayers}
                     <p class="px-4 pb-1 text-sm leading-snug text-black/50">
                         Mehr Spieler freischalten weitere Impostor-Optionen.
                     </p>
-                {:else if settingsState.impostorCountMode === "random"}
+                {:else if settingsState.effectiveImpostorCountMode === "random"}
                     <div class="space-y-4 rounded-2xl bg-bg/60 px-4 py-4">
-                        <Slider
-                            type="multiple"
-                            max={settingsState.maxImpostorCount}
-                            min={1}
-                            step={1}
-                            value={settingsState.normalizedRandomImpostorRange}
-                            onValueChange={settingsState.updateRandomImpostorRange} />
+                        <div class="px-3">
+                            <Slider
+                                type="multiple"
+                                max={settingsState.maxImpostorCount}
+                                min={1}
+                                step={1}
+                                value={settingsState.normalizedRandomImpostorRange}
+                                onValueChange={settingsState.updateRandomImpostorRange} />
+                        </div>
 
                         <div
-                            class="flex items-center justify-between text-xs font-medium tracking-wide text-black/45 uppercase">
+                            class="flex items-center justify-between px-1 text-xs font-medium tracking-wide text-black/45 uppercase tabular-nums">
                             <span>1</span>
                             <span>{settingsState.maxImpostorCount}</span>
                         </div>
@@ -105,7 +110,13 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="flex max-h-full min-h-0 w-full flex-col gap-2 overflow-y-auto">
+                    <div class="flex max-h-full min-h-0 w-full flex-col gap-3 overflow-y-auto">
+                        {#if !settingsState.canUseRandomImpostorCount}
+                            <p class="px-4 text-sm leading-snug text-black/50">
+                                Zufällige Bereiche sind ab {impostorRandomCountMinPlayers} Spielern verfügbar.
+                            </p>
+                        {/if}
+
                         {#each Array.from({ length: settingsState.maxImpostorCount }, (_, index) => index + 1) as impostorCount, index (impostorCount)}
                             <SettingsOptionRow
                                 label={`${impostorCount} Impostor`}

@@ -12,6 +12,7 @@ const defaultCategoryIds = impostorCategories[0] ? [impostorCategories[0].id] : 
 
 export const impostorMinPlayers = 3;
 export const impostorTimerOptions = [60, 120, 180, 300, 600] as const;
+export const impostorRandomCountMinPlayers = 5;
 
 type ImpostorCountMode = ImpostorCountConfig["mode"];
 
@@ -39,7 +40,11 @@ export class ImpostorSettingsState {
             })),
     );
     playerCount = $derived(this.players.length);
-    maxImpostorCount = $derived(Math.max(1, this.playerCount - 1));
+    maxImpostorCount = $derived(getMaxImpostorCount(this.playerCount));
+    canUseRandomImpostorCount = $derived(this.playerCount >= impostorRandomCountMinPlayers);
+    effectiveImpostorCountMode = $derived<ImpostorCountMode>(
+        this.canUseRandomImpostorCount && this.impostorCountMode === "random" ? "random" : "fixed",
+    );
     normalizedFixedImpostorCount = $derived(
         clamp(this.fixedImpostorCount, 1, this.maxImpostorCount),
     );
@@ -56,7 +61,7 @@ export class ImpostorSettingsState {
 
     impostorCountConfig = $derived.by(
         (): ImpostorCountConfig =>
-            this.impostorCountMode === "random"
+            this.effectiveImpostorCountMode === "random"
                 ? {
                       mode: "random",
                       min: this.normalizedRandomImpostorRange[0],
@@ -163,7 +168,7 @@ export class ImpostorSettingsState {
     };
 
     updateImpostorMode = (enabled: boolean) => {
-        this.impostorCountMode = enabled ? "random" : "fixed";
+        this.impostorCountMode = enabled && this.canUseRandomImpostorCount ? "random" : "fixed";
     };
 
     updateRandomImpostorRange = (value: number[]) => {
@@ -188,6 +193,10 @@ export const [getImpostorSettingsState, setImpostorSettingsState] =
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
+}
+
+function getMaxImpostorCount(playerCount: number) {
+    return Math.max(1, Math.floor((playerCount - 1) / 2));
 }
 
 export function formatImpostorTimer(seconds: number) {
