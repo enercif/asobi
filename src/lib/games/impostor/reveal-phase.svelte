@@ -25,6 +25,10 @@
 
     let isHoldingCard = $state(false);
     let activePointerId = $state<number | null>(null);
+    const secretHeadline = $derived(card.word ?? "Du bist der Impostor");
+    const secretHeadlineClass = $derived(
+        card.word ? "text-5xl text-black sm:text-6xl" : "text-4xl text-red-600 sm:text-5xl",
+    );
 
     function startReveal() {
         isHoldingCard = true;
@@ -92,10 +96,8 @@
     </div>
 
     <button
-        class={`flex min-h-[22rem] w-full flex-1 touch-none flex-col items-center justify-center gap-6 rounded-[2rem] border-2 px-8 py-10 text-center shadow-sm transition-transform select-none ${
-            isHoldingCard
-                ? "border-primary/20 bg-white text-black"
-                : "border-red-700 bg-red-600 text-white active:scale-[0.99]"
+        class={`flex min-h-[22rem] w-full flex-1 touch-none flex-col items-center justify-center gap-6 rounded-[2rem] border-2 bg-white px-8 py-10 text-center text-black shadow-sm transition-transform select-none ${
+            isHoldingCard ? "border-primary/20" : "border-red-700/70 active:scale-[0.99]"
         }`}
         aria-pressed={isHoldingCard}
         type="button"
@@ -107,33 +109,54 @@
         onkeydown={handleKeydown}
         onkeyup={handleKeyup}
         onblur={() => endReveal()}>
-        {#if isHoldingCard}
-            <div class="flex flex-col items-center gap-4">
-                <p class="text-sm font-semibold tracking-[0.35em] text-primary uppercase">
-                    {card.label}
+        <div class="flex w-full max-w-xl flex-col items-center gap-8">
+            <div class="flex flex-col items-center gap-3 text-center">
+                <p
+                    class={`rounded-full px-4 py-1 text-xs font-semibold tracking-[0.35em] uppercase transition-colors duration-200 ${
+                        isHoldingCard ? "bg-primary/10 text-primary" : "bg-red-50 text-red-700"
+                    }`}>
+                    Geheime Karte
                 </p>
-
-                {#if card.word}
-                    <p
-                        class="text-5xl font-black tracking-[0.2em] text-balance text-black uppercase">
-                        {card.word}
-                    </p>
-                {:else}
-                    <p
-                        class="text-4xl font-black tracking-[0.2em] text-balance text-red-600 uppercase">
-                        Du bist der Impostor
-                    </p>
-                {/if}
-
-                {#if card.hint}
-                    <p class="max-w-sm text-base text-black/65">Hinweis: {card.hint}</p>
-                {/if}
+                <p class="text-sm text-black/60">
+                    {isHoldingCard ? "Loslassen zum Verbergen" : "Gedrückt halten zum Aufdecken"}
+                </p>
             </div>
-        {:else}
-            <div class="flex flex-col items-center justify-center">
-                <p class="text-5xl font-black tracking-[0.35em] text-white uppercase">TOP SECRET</p>
+
+            <div
+                class="relative flex min-h-[12rem] w-full items-center justify-center overflow-hidden rounded-[1.75rem] border border-black/10 bg-neutral-50 px-6 py-8">
+                <div
+                    class={`flex max-w-lg flex-col items-center gap-4 text-center transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${
+                        isHoldingCard
+                            ? "translate-y-4 rotate-[1.5deg] opacity-100"
+                            : "-translate-y-4 -rotate-[1.5deg] opacity-0"
+                    }`}>
+                    <p class="text-sm font-semibold tracking-[0.35em] text-primary uppercase">
+                        {card.label}
+                    </p>
+
+                    <p
+                        class={`font-black tracking-[0.2em] text-balance uppercase ${secretHeadlineClass}`}>
+                        {secretHeadline}
+                    </p>
+
+                    {#if card.hint}
+                        <p class="max-w-sm text-base text-black/65">Hinweis: {card.hint}</p>
+                    {/if}
+                </div>
+
+                <div
+                    class={`pointer-events-none absolute inset-x-6 top-1/2 flex -translate-y-1/2 justify-center transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                        isHoldingCard ? "-translate-y-[5.5rem] -rotate-[10deg]" : "rotate-[-2deg]"
+                    }`}>
+                    <div
+                        class="flex min-h-[4.75rem] w-full max-w-[24rem] items-center justify-center rounded-xl border border-red-900/60 bg-red-600 px-6 py-4 shadow-[0_18px_40px_-24px_rgba(127,29,29,0.85)] will-change-transform">
+                        <p class="text-3xl font-black tracking-[0.35em] text-white uppercase">
+                            TOP SECRET
+                        </p>
+                    </div>
+                </div>
             </div>
-        {/if}
+        </div>
     </button>
 
     <div class="flex flex-col items-center gap-3 text-center">
