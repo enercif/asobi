@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createImpostorRound } from "$lib/games/impostor/round";
 	import { impostorCategories } from "$lib/games/impostor/categories";
+	import DiscussionPhase from "$lib/games/impostor/discussion-phase.svelte";
 	import RevealPhase from "$lib/games/impostor/reveal-phase.svelte";
 	import SettingsOptionRow from "$lib/games/impostor/settings-option-row.svelte";
 	import SettingsToggleRow from "$lib/games/impostor/settings-toggle-row.svelte";
@@ -8,8 +9,10 @@
 	import type {
 		ImpostorCountConfig,
 		ImpostorGamePhase,
+		ImpostorGameResult,
 		ImpostorGameSetup,
 		ImpostorPlayer,
+		ImpostorRoundEndReason,
 		ImpostorRound,
 		ImpostorTimerConfig,
 	} from "$lib/types/impostor-game.type";
@@ -35,6 +38,8 @@
 	let starred = $state(false);
 	let phase = $state<"setup" | ImpostorGamePhase>("setup");
 	let currentRound = $state<ImpostorRound | null>(null);
+	let currentResult = $state<ImpostorGameResult | null>(null);
+	let activeTimerConfig = $state<ImpostorTimerConfig>({ enabled: false });
 	let currentRevealPlayerIndex = $state(0);
 	let revealedPlayerIds = $state<ImpostorPlayer["id"][]>([]);
 	let roundError = $state<string | null>(null);
@@ -178,6 +183,15 @@
 
 		return roundPlayers.find((player) => player.id === startingPlayerId) ?? null;
 	});
+	let resultImpostorPlayers = $derived.by(() => {
+		const result = currentResult;
+
+		if (result === null) {
+			return [];
+		}
+
+		return result.round.players.filter((player) => result.impostorPlayerIds.includes(player.id));
+	});
 
     function clamp(value: number, min: number, max: number) {
         return Math.min(Math.max(value, min), max);
@@ -223,6 +237,11 @@
 
 		try {
 			currentRound = createImpostorRound(gameSetup);
+			currentResult = null;
+			activeTimerConfig =
+				gameSetup.timer.enabled
+					? { enabled: true, durationSeconds: gameSetup.timer.durationSeconds }
+					: { enabled: false };
 			currentRevealPlayerIndex = 0;
 			revealedPlayerIds = [];
 			phase = "reveal";
@@ -256,6 +275,23 @@
 		}
 
 		phase = "discussion";
+	}
+
+	function endRound(endedReason: ImpostorRoundEndReason) {
+		if (currentRound === null) {
+			return;
+		}
+
+		currentResult = {
+			endedReason,
+			secretWord: currentRound.selectedWord,
+			startingPlayerId: currentRound.startingPlayerId,
+			impostorPlayerIds: currentRound.assignments
+				.filter((assignment) => assignment.role === "impostor")
+				.map((assignment) => assignment.playerId),
+			round: currentRound,
+		};
+		phase = "results";
 	}
 </script>
 
@@ -495,11 +531,35 @@
 			onStartGame={startDiscussionPhase}
 		/>
 	{:else if phase === "discussion" && currentRound}
-		<div class="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] bg-white px-8 py-10 text-center">
-			<p class="text-sm font-semibold uppercase tracking-[0.35em] text-primary">Diskussion</p>
-			<h2 class="text-4xl font-bold text-black">Alle Karten wurden verteilt</h2>
-			<p class="max-w-md text-lg text-black/65">
-				{discussionStartingPlayer?.name ?? "Ein Spieler"} beginnt die Runde.
+		<DiscussionPhase
+			round={currentRound}
+			timer={activeTimerConfig}
+			onShowImpostors={() => endRound("manual")}
+			onTimerEnd={() => endRound("timer")}
+		/>
+	{:else if phase === "results" && currentResult}
+		<div class="flex flex-1 flex-col items-center justify-center gap-8 rounded-[2rem] bg-white px-8 py-10 text-center">
+			<div class="flex flex-col gap-3">
+				<p class="text-sm font-semibold uppercase tracking-[0.35em] text-primary">
+					{currentResult.endedReason === "timer" ? "Zeit abgelaufen" : "Runde beendet"}
+				</p>
+				<h2 class="text-4xl font-bold text-black">Impostors aufgedeckt</h2>
+				<p class="max-w-md text-lg text-black/65">
+					{discussionStartingPlayer?.name ?? "Ein Spieler"} hat begonnen. Das gesuchte Wort war
+					<span class="font-bold text-black">{currentResult.secretWord.word}</span>.
+				</p>
+			</div>
+
+			<div class="flex flex-wrap items-center justify-center gap-3">
+				{#each resultImpostorPlayers as player (player.id)}
+					<span class="rounded-full bg-red-600 px-4 py-2 text-base font-semibold text-white">
+						{player.name}
+					</span>
+				{/each}
+			</div>
+
+			<p class="text-sm text-black/55">
+				Kategorie: {currentResult.secretWord.categoryName}
 			</p>
 		</div>
 	{/if}
