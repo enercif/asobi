@@ -10,7 +10,6 @@
         CircleDashedIcon,
         HatGlassesIcon,
         SearchIcon,
-        ShieldIcon,
         TimerIcon,
         UserIcon,
     } from "@lucide/svelte";
@@ -63,12 +62,6 @@
         onStart,
     }: Props = $props();
 
-    const privacyTips = [
-        "Gebt das Gerät immer erst an die angezeigte Person weiter.",
-        "Geheime Karten werden nur sichtbar, solange gedrückt gehalten wird.",
-        "Nach dem Loslassen ist die Karte sofort wieder verborgen.",
-    ] as const;
-
     function formatTimer(seconds: number) {
         return seconds < 60 || seconds % 60 !== 0 ? `${seconds}s` : `${seconds / 60} min`;
     }
@@ -101,8 +94,8 @@
     }
 </script>
 
-<div class="flex flex-col gap-8">
-    <div class="flex flex-col rounded-2xl bg-white text-xl">
+<div class="flex flex-col gap-6">
+    <div class="overflow-hidden rounded-3xl bg-white text-xl shadow-sm ring-1 ring-black/5">
         <Dialog title="Spieler">
             {#snippet trigger()}
                 <SettingsTriggerRow label="Spieler" value={playerCount}>
@@ -110,24 +103,24 @@
                 </SettingsTriggerRow>
             {/snippet}
 
-            <div class="flex size-full flex-col gap-3 overflow-y-auto">
+            <div class="flex size-full flex-col gap-2 overflow-y-auto">
                 {#each playerInputs as playerName, index (index)}
                     <input
                         autocomplete="off"
                         spellcheck="false"
                         placeholder={`Spieler ${index + 1}`}
-                        class="border-none text-xl animate-in animate-out outline-none fade-in zoom-in-50"
+                        class="rounded-2xl bg-bg/60 px-4 py-3 text-base ring-1 ring-transparent outline-hidden transition animate-in animate-out fade-in zoom-in-50 focus:bg-white focus:ring-primary/15 sm:text-lg"
                         value={playerName}
                         oninput={(event) => updatePlayer(index, event.currentTarget.value)} />
 
                     {#if index + 1 !== playerInputs.length}
-                        <div class="mx-2 border-b border-contrast/50"></div>
+                        <div class="mx-2 border-b border-contrast/35"></div>
                     {/if}
                 {/each}
             </div>
         </Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+        <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
         <Dialog title="Impostor">
             {#snippet trigger()}
@@ -140,18 +133,19 @@
                 <SettingsToggleRow
                     checked={impostorCountMode === "random"}
                     label="Zufällige Anzahl"
+                    description="Legt den Bereich pro Runde neu fest."
                     onCheckedChange={updateImpostorMode}>
                     <HatGlassesIcon size={28} />
                 </SettingsToggleRow>
 
-                <div class="mx-2 border-b border-contrast/50"></div>
+                <div class="mx-2 border-b border-contrast/35"></div>
 
                 {#if playerCount < minPlayers}
-                    <p class="text-sm text-black/50">
+                    <p class="px-4 pb-1 text-sm leading-snug text-black/50">
                         Mehr Spieler freischalten weitere Impostor-Optionen.
                     </p>
                 {:else if impostorCountMode === "random"}
-                    <div class="flex flex-col gap-4 px-2 py-3">
+                    <div class="space-y-4 rounded-2xl bg-bg/60 px-4 py-4">
                         <Slider
                             type="multiple"
                             max={maxImpostorCount}
@@ -160,19 +154,25 @@
                             value={normalizedRandomImpostorRange}
                             onValueChange={updateRandomImpostorRange} />
 
+                        <div
+                            class="flex items-center justify-between text-xs font-medium tracking-wide text-black/45 uppercase">
+                            <span>1</span>
+                            <span>{maxImpostorCount}</span>
+                        </div>
+
                         {#if normalizedRandomImpostorRange[0] === normalizedRandomImpostorRange[1]}
-                            <p class="text-center text-black">
+                            <p class="text-center text-sm font-medium text-black/70">
                                 {normalizedRandomImpostorRange[0]} Impostor
                             </p>
                         {:else}
-                            <p class="text-center text-black">
+                            <p class="text-center text-sm font-medium text-black/70">
                                 {normalizedRandomImpostorRange[0]} - {normalizedRandomImpostorRange[1]}
                                 Impostor
                             </p>
                         {/if}
                     </div>
                 {:else}
-                    <div class="flex max-h-full min-h-0 w-full flex-col gap-3 overflow-y-auto">
+                    <div class="flex max-h-full min-h-0 w-full flex-col gap-2 overflow-y-auto">
                         {#each Array.from({ length: maxImpostorCount }, (_, index) => index + 1) as impostorCount, index (impostorCount)}
                             <SettingsOptionRow
                                 label={`${impostorCount} Impostor`}
@@ -180,7 +180,7 @@
                                 onclick={() => (fixedImpostorCount = impostorCount)} />
 
                             {#if index !== maxImpostorCount - 1}
-                                <div class="mx-2 border-b border-contrast/50"></div>
+                                <div class="mx-2 border-b border-contrast/35"></div>
                             {/if}
                         {/each}
                     </div>
@@ -188,7 +188,7 @@
             </div>
         </Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+        <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
         <Dialog title="Kategorien">
             {#snippet trigger()}
@@ -197,7 +197,7 @@
                 </SettingsTriggerRow>
             {/snippet}
 
-            <div class="flex max-h-full min-h-0 w-full flex-col gap-3 overflow-y-auto">
+            <div class="flex max-h-full min-h-0 w-full flex-col gap-2 overflow-y-auto">
                 {#each impostorCategories as impostorCategory, index (impostorCategory.id)}
                     <SettingsOptionRow
                         label={impostorCategory.name}
@@ -206,23 +206,28 @@
                         onclick={() => toggleCategory(impostorCategory.id)} />
 
                     {#if index !== impostorCategories.length - 1}
-                        <div class="mx-2 border-b border-contrast/50"></div>
+                        <div class="mx-2 border-b border-contrast/35"></div>
                     {/if}
                 {/each}
 
                 {#if selectedCategoryIds.length === 0}
-                    <p class="text-sm text-red-500">Bitte mindestens eine Kategorie auswählen</p>
+                    <p class="px-4 pb-1 text-sm text-red-500">
+                        Bitte mindestens eine Kategorie auswählen
+                    </p>
                 {/if}
             </div>
         </Dialog>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+        <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
-        <SettingsToggleRow bind:checked={hintsEnabled} label="Hinweise">
+        <SettingsToggleRow
+            bind:checked={hintsEnabled}
+            label="Hinweise"
+            description="Zeigt zusätzliche Hilfen zur gesuchten Kategorie an.">
             <SearchIcon size={28} />
         </SettingsToggleRow>
 
-        <div class="mx-8 border-b border-contrast/50"></div>
+        <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
         <Dialog title="Zeitlimit">
             {#snippet trigger()}
@@ -232,14 +237,17 @@
             {/snippet}
 
             <div class="flex flex-col gap-3">
-                <SettingsToggleRow bind:checked={timerEnabled} label="Zeitlimit aktivieren">
+                <SettingsToggleRow
+                    bind:checked={timerEnabled}
+                    label="Zeitlimit aktivieren"
+                    description="Beendet die Diskussionsphase nach Ablauf automatisch.">
                     <TimerIcon size={28} />
                 </SettingsToggleRow>
 
                 {#if timerEnabled}
-                    <div class="mx-2 border-b border-contrast/50"></div>
+                    <div class="mx-2 border-b border-contrast/35"></div>
 
-                    <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-2">
                         {#each timerOptions as timerOption, index (timerOption)}
                             <SettingsOptionRow
                                 label={formatTimer(timerOption)}
@@ -247,28 +255,17 @@
                                 onclick={() => (timerDurationSeconds = timerOption)} />
 
                             {#if index !== timerOptions.length - 1}
-                                <div class="mx-2 border-b border-contrast/50"></div>
+                                <div class="mx-2 border-b border-contrast/35"></div>
                             {/if}
                         {/each}
                     </div>
                 {:else}
-                    <p class="text-sm text-black/50">Der Timer ist aktuell deaktiviert.</p>
+                    <p class="px-4 pb-1 text-sm leading-snug text-black/50">
+                        Der Timer ist aktuell deaktiviert.
+                    </p>
                 {/if}
             </div>
         </Dialog>
-    </div>
-
-    <div class="flex flex-col gap-4 rounded-2xl bg-white px-6 py-5 text-left">
-        <div class="flex items-center gap-3 text-xl text-black">
-            <ShieldIcon size={28} />
-            <p class="font-medium">Privater Pass-and-Play</p>
-        </div>
-
-        <div class="flex flex-col gap-2 text-sm text-black/65">
-            {#each privacyTips as tip (tip)}
-                <p>{tip}</p>
-            {/each}
-        </div>
     </div>
 
     <div class="mb-10 flex w-full flex-col items-center gap-2">

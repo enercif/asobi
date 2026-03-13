@@ -20,16 +20,10 @@
         {#each thumbItems as { index } (index)}
             <Slider.Thumb
                 {index}
-                class="z-5 block size-6.5 cursor-pointer rounded-full border border-contrast/25 bg-white shadow-sm transition-colors focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-active:scale-[0.98]" />
+                class="z-5 block size-6.5 cursor-pointer rounded-full border border-primary/10 bg-white shadow-sm transition-colors focus-visible:ring-4 focus-visible:ring-primary/15 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-active:scale-[0.98]" />
         {/each}
         {#each tickItems as { index, value } (index)}
-            <Slider.Tick {index} class="z-1 h-2 w-0.5 bg-white" />
-            <Slider.TickLabel
-                {index}
-                class="mb-5 text-sm leading-none font-medium text-black/25 data-bounded:text-black"
-                position="top">
-                {value}
-            </Slider.TickLabel>
+            <Slider.Tick {index} class="z-1 h-2 w-0.5 rounded-full bg-white/90" />
         {/each}
     {/snippet}
 </Slider.Root>
