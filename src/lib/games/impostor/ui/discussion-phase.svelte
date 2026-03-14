@@ -1,6 +1,6 @@
 <script lang="ts">
-    import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion-timer-circle.svelte";
     import type { ImpostorRound, ImpostorTimerConfig } from "$lib/games/impostor/types";
+    import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion-timer-circle.svelte";
 
     type Props = {
         round: ImpostorRound;
@@ -100,37 +100,18 @@
 
 <div class="flex h-full flex-col gap-8">
     <div class="flex flex-col gap-3 text-center">
-        <p class="text-sm font-semibold tracking-[0.35em] text-primary uppercase">
-            Diskussion läuft
-        </p>
         <h2 class="text-4xl font-bold text-balance text-black">
             {startingPlayer?.name ?? "Ein Spieler"} beginnt
         </h2>
-        <p class="text-base text-black/60">
-            Startet mit eurem ersten Hinweis und findet gemeinsam den Impostor.
-        </p>
     </div>
 
     <div
-        class="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] bg-white px-8 py-10 text-center shadow-sm">
+        class="flex flex-col items-center justify-center gap-6 rounded-4xl bg-white px-8 py-10 text-center shadow-sm">
         <DiscussionTimerCircle {timer} statusLabel={timerStatusLabel} {strokeDashoffset} />
-
-        <div class="flex flex-wrap items-center justify-center gap-2">
-            {#each round.players as player (player.id)}
-                <span
-                    class={`rounded-full px-3 py-1 text-sm font-medium ${
-                        player.id === round.startingPlayerId
-                            ? "bg-primary text-white"
-                            : "bg-black/5 text-black/65"
-                    }`}>
-                    {player.name}
-                </span>
-            {/each}
-        </div>
     </div>
 
     <button
-        class="w-full rounded-xl bg-red-600 px-6 py-3 text-lg font-semibold text-white"
+        class="mt-auto mb-10 w-full rounded-xl bg-red-600 px-6 py-3 text-lg font-semibold text-white"
         type="button"
         onclick={revealImpostors}>
         Impostors anzeigen

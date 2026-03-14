@@ -1,13 +1,9 @@
 <script lang="ts">
+    import { createImpostorRound } from "$lib/games/impostor/round";
     import {
         createImpostorSettingsState,
         setImpostorSettingsState,
     } from "$lib/games/impostor/settings-state.svelte";
-    import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
-    import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
-    import { createImpostorRound } from "$lib/games/impostor/round";
-    import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
-    import SettingsPhase from "$lib/games/impostor/ui/settings-phase.svelte";
     import type {
         ImpostorGamePhase,
         ImpostorGameResult,
@@ -17,6 +13,10 @@
         ImpostorRoundEndReason,
         ImpostorTimerConfig,
     } from "$lib/games/impostor/types";
+    import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
+    import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
+    import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
+    import SettingsPhase from "$lib/games/impostor/ui/settings-phase.svelte";
     import Dialog from "$lib/ui/dialog.svelte";
     import { BookmarkIcon, ChevronLeft, CircleQuestionMarkIcon } from "@lucide/svelte";
 
@@ -140,7 +140,7 @@
     }
 </script>
 
-<div class="flex h-full flex-col gap-20">
+<div class="flex h-full flex-col gap-10">
     <div class="relative flex flex-row items-center justify-between">
         <a
             class="flex size-12 items-center justify-center rounded-lg bg-white"

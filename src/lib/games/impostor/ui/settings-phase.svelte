@@ -3,7 +3,6 @@
     import {
         formatImpostorTimer,
         getImpostorSettingsState,
-        impostorRandomCountMinPlayers,
     } from "$lib/games/impostor/settings-state.svelte";
     import SettingsOptionRow from "$lib/games/impostor/ui/settings-option-row.svelte";
     import SettingsToggleRow from "$lib/games/impostor/ui/settings-toggle-row.svelte";
@@ -27,8 +26,9 @@
     const settingsState = getImpostorSettingsState();
 </script>
 
-<div class="flex flex-col gap-6">
-    <div class="overflow-hidden rounded-3xl bg-white text-xl shadow-sm ring-1 ring-black/5">
+<div class="mt-10 flex h-full flex-col gap-6">
+    <div
+        class="flex w-full flex-col overflow-hidden rounded-3xl bg-white text-xl shadow-sm ring-1 ring-black/5">
         <Dialog title="Spieler">
             {#snippet trigger()}
                 <SettingsTriggerRow label="Spieler" value={settingsState.playerCount}>
@@ -36,13 +36,13 @@
                 </SettingsTriggerRow>
             {/snippet}
 
-            <div class="flex size-full flex-col gap-2 overflow-y-auto">
+            <div class="flex size-full max-h-125 flex-col gap-2 overflow-y-auto">
                 {#each settingsState.playerInputs as playerName, index (index)}
                     <input
                         autocomplete="off"
                         spellcheck="false"
                         placeholder={`Spieler ${index + 1}`}
-                        class="rounded-2xl bg-bg/60 px-4 py-3 text-base ring-1 ring-transparent outline-hidden transition animate-in animate-out fade-in zoom-in-50 focus:bg-white focus:ring-primary/15 sm:text-lg"
+                        class="rounded-2xl px-4 py-1.5 text-base ring-1 ring-transparent outline-hidden transition animate-in animate-out fade-in zoom-in-50 sm:text-lg"
                         value={playerName}
                         oninput={(event) =>
                             settingsState.updatePlayer(index, event.currentTarget.value)} />
@@ -68,7 +68,6 @@
                     <SettingsToggleRow
                         checked={settingsState.effectiveImpostorCountMode === "random"}
                         label="Zufällige Anzahl"
-                        description="Legt den Bereich pro Runde neu fest."
                         onCheckedChange={settingsState.updateImpostorMode}>
                         <HatGlassesIcon size={28} />
                     </SettingsToggleRow>
@@ -77,11 +76,11 @@
                 {/if}
 
                 {#if settingsState.playerCount < settingsState.minPlayers}
-                    <p class="px-4 pb-1 text-sm leading-snug text-black/50">
-                        Mehr Spieler freischalten weitere Impostor-Optionen.
+                    <p class=" pb-1 text-center text-base leading-snug text-black/50">
+                        Bitte zuerst mindestens {settingsState.minPlayers} Spieler hinzufügen
                     </p>
                 {:else if settingsState.effectiveImpostorCountMode === "random"}
-                    <div class="space-y-4 rounded-2xl bg-bg/60 px-4 py-4">
+                    <div class="mt-8 space-y-4 rounded-2xl px-4 py-4">
                         <div class="px-3">
                             <Slider
                                 type="multiple"
@@ -90,12 +89,6 @@
                                 step={1}
                                 value={settingsState.normalizedRandomImpostorRange}
                                 onValueChange={settingsState.updateRandomImpostorRange} />
-                        </div>
-
-                        <div
-                            class="flex items-center justify-between px-1 text-xs font-medium tracking-wide text-black/45 uppercase tabular-nums">
-                            <span>1</span>
-                            <span>{settingsState.maxImpostorCount}</span>
                         </div>
 
                         {#if settingsState.normalizedRandomImpostorRange[0] === settingsState.normalizedRandomImpostorRange[1]}
@@ -110,13 +103,7 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="flex max-h-full min-h-0 w-full flex-col gap-3 overflow-y-auto">
-                        {#if !settingsState.canUseRandomImpostorCount}
-                            <p class="px-4 text-sm leading-snug text-black/50">
-                                Zufällige Bereiche sind ab {impostorRandomCountMinPlayers} Spielern verfügbar.
-                            </p>
-                        {/if}
-
+                    <div class="flex max-h-125 min-h-0 w-full flex-col gap-3 overflow-y-auto">
                         {#each Array.from({ length: settingsState.maxImpostorCount }, (_, index) => index + 1) as impostorCount, index (impostorCount)}
                             <SettingsOptionRow
                                 label={`${impostorCount} Impostor`}
@@ -126,7 +113,7 @@
                                     (settingsState.fixedImpostorCount = impostorCount)} />
 
                             {#if index !== settingsState.maxImpostorCount - 1}
-                                <div class="mx-2 border-b border-contrast/35"></div>
+                                <div class="mx-1 border-b border-contrast/35"></div>
                             {/if}
                         {/each}
                     </div>
@@ -140,12 +127,12 @@
             {#snippet trigger()}
                 <SettingsTriggerRow
                     label="Kategorien"
-                    value={settingsState.selectedCategoryIds.length}>
+                    value={`${settingsState.selectedCategoryIds.length} / ${impostorCategories.length}`}>
                     <CircleDashedIcon size={28} />
                 </SettingsTriggerRow>
             {/snippet}
 
-            <div class="flex max-h-full min-h-0 w-full flex-col gap-2 overflow-y-auto">
+            <div class="flex max-h-125 min-h-0 w-full flex-col gap-2 overflow-y-auto">
                 {#each impostorCategories as impostorCategory, index (impostorCategory.id)}
                     <SettingsOptionRow
                         label={impostorCategory.name}
@@ -168,10 +155,7 @@
 
         <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
-        <SettingsToggleRow
-            bind:checked={settingsState.hintsEnabled}
-            label="Hinweise"
-            description="Zeigt zusätzliche Hilfen zur gesuchten Kategorie an.">
+        <SettingsToggleRow bind:checked={settingsState.hintsEnabled} label="Hinweise">
             <SearchIcon size={28} />
         </SettingsToggleRow>
 
@@ -187,8 +171,7 @@
             <div class="flex flex-col gap-3">
                 <SettingsToggleRow
                     bind:checked={settingsState.timerEnabled}
-                    label="Zeitlimit aktivieren"
-                    description="Beendet die Diskussionsphase nach Ablauf automatisch.">
+                    label="Zeitlimit aktivieren">
                     <TimerIcon size={28} />
                 </SettingsToggleRow>
 
@@ -208,16 +191,12 @@
                             {/if}
                         {/each}
                     </div>
-                {:else}
-                    <p class="px-4 pb-1 text-sm leading-snug text-black/50">
-                        Der Timer ist aktuell deaktiviert.
-                    </p>
                 {/if}
             </div>
         </Dialog>
     </div>
 
-    <div class="mb-10 flex w-full flex-col items-center gap-2">
+    <div class="mt-auto mb-10 flex w-full flex-col items-center gap-2">
         {#each settingsState.validationErrors as validationError (validationError)}
             <p class="text-center text-red-500">{validationError}</p>
         {/each}

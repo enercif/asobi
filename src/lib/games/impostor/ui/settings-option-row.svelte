@@ -13,7 +13,7 @@
 </script>
 
 <button
-    class="flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-bg/70 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+    class="flex w-full items-center gap-3 rounded-2xl px-4 py-1.5 text-left disabled:cursor-not-allowed disabled:opacity-50"
     {disabled}
     {onclick}>
     <div class="min-w-0 flex-1 space-y-1">
@@ -23,9 +23,9 @@
         {/if}
     </div>
 
-    {#if selected}
-        <p class="mt-0.5 shrink-0 rounded-full bg-primary/10 p-1 text-primary">
-            <CheckIcon size={18} />
-        </p>
-    {/if}
+    <p class="size-8 p-1 text-primary">
+        {#if selected}
+            <CheckIcon size={24} />
+        {/if}
+    </p>
 </button>

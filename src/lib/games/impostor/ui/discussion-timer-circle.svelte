@@ -37,14 +37,12 @@
     </svg>
 
     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
-        <p class="text-sm font-semibold tracking-[0.35em] text-black/45 uppercase">
-            {timer.enabled ? "Restzeit" : "Zeitlimit"}
-        </p>
-        <p class="text-5xl font-black text-black tabular-nums" aria-live="polite">{statusLabel}</p>
-        <p class="max-w-[11rem] text-sm text-black/55">
-            {timer.enabled
-                ? `${timer.durationSeconds} Sekunden für die Gesprächsrunde`
-                : "Die Runde läuft ohne automatisches Ende."}
-        </p>
+        {#if timer.enabled}
+            <p class="text-5xl font-black text-black tabular-nums" aria-live="polite">
+                {statusLabel}
+            </p>
+        {:else}
+            <p class="wider text-sm font-semibold tracking-wider text-black/45">Kein Zeitlimit</p>
+        {/if}
     </div>
 </div>

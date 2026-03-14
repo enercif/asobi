@@ -12,7 +12,7 @@ const defaultCategoryIds = impostorCategories[0] ? [impostorCategories[0].id] : 
 
 export const impostorMinPlayers = 3;
 export const impostorTimerOptions = [60, 120, 180, 300, 600] as const;
-export const impostorRandomCountMinPlayers = 5;
+export const impostorRandomCountMinPlayers = 3;
 
 type ImpostorCountMode = ImpostorCountConfig["mode"];
 
@@ -196,7 +196,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function getMaxImpostorCount(playerCount: number) {
-    return Math.max(1, Math.floor((playerCount - 1) / 2));
+    return playerCount - 1;
 }
 
 export function formatImpostorTimer(seconds: number) {

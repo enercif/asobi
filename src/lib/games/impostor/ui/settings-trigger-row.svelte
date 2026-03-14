@@ -12,10 +12,8 @@
     } = $props();
 </script>
 
-<div class="flex items-center gap-3 px-4 py-3 text-left sm:px-6 sm:py-4">
-    <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-bg/70 text-black">
-        {@render children()}
-    </div>
-    <p class="min-w-0 flex-1 text-base leading-tight font-medium text-black">{label}</p>
-    <p class="shrink-0 rounded-full bg-bg px-3 py-1 text-sm font-medium text-black/70">{value}</p>
+<div class="flex flex-row items-center gap-3 px-6 py-4">
+    {@render children()}
+    <p class="text-base font-medium">{label}</p>
+    <p class="ml-auto text-base font-medium">{value}</p>
 </div>
