@@ -139,26 +139,24 @@
         {#each gamesList as game, index}
             <a
                 href={game.link}
-                class="slide rounded-2xl w-52 aspect-2/3 basis-[70%] min-w-0 shrink-0 grow-0"
+                class="slide aspect-2/3 w-52 min-w-0 shrink-0 grow-0 basis-[70%] rounded-2xl"
                 style="
                             --r: {slideStyles[index]?.r ?? 0}deg;
                             --x: {slideStyles[index]?.x ?? 0}px;
                             --s: {slideStyles[index]?.s ?? 1};
                             --o: {slideStyles[index]?.o ?? 1};
-                        "
-            >
+                        ">
                 <img
                     src={game.cover}
                     alt={game.name}
-                    class="rounded-2xl w-full h-full object-cover"
-                />
+                    class="h-full w-full rounded-2xl object-cover" />
             </a>
         {/each}
     </div>
 </div>
 
 <!-- Dots -->
-<div class="flex flex-row gap-2 items-center mx-auto">
+<div class="mx-auto flex flex-row items-center gap-2">
     {#each scrollSnaps as _, index (index)}
         <button
             aria-label="Button Index {index}"
@@ -167,8 +165,7 @@
             class:bg-black={index !== activeSnap}
             class:size-3={index === activeSnap}
             class:size-2={index !== activeSnap}
-            onclick={() => snapToSlide(index)}
-        ></button>
+            onclick={() => snapToSlide(index)}></button>
     {/each}
 </div>
 

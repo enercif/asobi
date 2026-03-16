@@ -1,78 +1,37 @@
 <script lang="ts">
-    import { impostorCategories } from "$lib/games/impostor/categories";
+    import { startRound } from "$lib/games/impostor/round";
+    import type { ImpostorGamePhase } from "$lib/games/impostor/types/games";
+
+    import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
+    import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
+    import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
+    import SettingsPhase from "$lib/games/impostor/ui/settings-phase.svelte";
     import Dialog from "$lib/ui/dialog.svelte";
-    import Slider from "$lib/ui/slider.svelte";
-    import Switch from "$lib/ui/switch.svelte";
-    import {
-        BookmarkIcon,
-        CheckIcon,
-        ChevronLeft,
-        CircleDashedIcon,
-        CircleQuestionMarkIcon,
-        HatGlassesIcon,
-        SearchIcon,
-        TimerIcon,
-        UserIcon,
-    } from "@lucide/svelte";
+    import { BookmarkIcon, ChevronLeft, CircleQuestionMarkIcon } from "@lucide/svelte";
 
-    const minPlayers = 3;
+    let starred = $state(false);
+    let phase = $state<ImpostorGamePhase>("setup");
 
-    let stared = $state(false);
-
-    let player: string[] = $state([""]);
-    let selectedPlayers = $derived(player.slice(0, -1));
-    let playerCount = $derived(selectedPlayers.length);
-
-    let selectedImpostorCount = $state(1);
-    let randomImpostor = $state(false);
-    let randomImpostorRange = $state([1, 2]);
-
-    let selectedCategories = $state(["1"]);
-
-    function updatePlayer(index: number, value: string) {
-        player[index] = value;
-
-        const lastIndex = player.length - 1;
-
-        if (index === lastIndex && value.trim() !== "") {
-            player.push("");
-        }
-
-        player = player.filter((p, i) => {
-            if (i === player.length - 1) return true;
-            return p.trim() !== "";
-        });
+    function startRevealFlow() {
+        phase = "reveal";
+        startRound();
     }
 
-    function getImpostorCount(): string {
-        if (playerCount < minPlayers) {
-            return "0";
-        }
-
-        if (randomImpostor) {
-            const min = randomImpostorRange[0];
-            const max = randomImpostorRange[1];
-            return min === max ? min.toString() : `${min} - ${max}`;
-        } else {
-            return selectedImpostorCount.toString();
-        }
+    function startDiscussionPhase() {
+        phase = "discussion";
     }
 
-    function onCategorySelect(categoryId: string) {
-        if (selectedCategories.includes(categoryId)) {
-            if (selectedCategories.length === 1) {
-                return;
-            }
-            selectedCategories = selectedCategories.filter((id) => id !== categoryId);
-        } else {
-            selectedCategories.push(categoryId);
-        }
+    function startResultPhase() {
+        phase = "results";
     }
 </script>
 
-<div class="flex flex-col gap-20 h-full">
+<div class="flex h-full flex-col gap-10">
     <div class="relative flex flex-row items-center justify-between">
-        <a class="bg-white rounded-lg size-12 flex items-center justify-center" href="/">
+        <a
+            class="flex size-12 items-center justify-center rounded-lg bg-white"
+            href="/"
+            aria-label="Zurück zur Startseite">
             <ChevronLeft size={28} />
         </a>
 
@@ -80,200 +39,57 @@
             <h1 class="text-3xl font-bold">Impostor</h1>
         </div>
 
-        <div class="flex flex-row items-center bg-white rounded-lg">
-            <button class="size-12 flex items-center justify-center">
-                <CircleQuestionMarkIcon size={28} />
-            </button>
+        {#if phase === "setup"}
+            <div class="flex flex-row items-center rounded-lg bg-white">
+                <Dialog title="So funktioniert Impostor">
+                    {#snippet trigger()}
+                        <div
+                            class="flex size-12 items-center justify-center"
+                            aria-label="Spielregeln anzeigen">
+                            <CircleQuestionMarkIcon size={28} />
+                        </div>
+                    {/snippet}
 
-            <div class="h-9 border-r border-contrast/50"></div>
-
-            <button
-                class="size-12 flex items-center justify-center"
-                onclick={() => (stared = !stared)}
-            >
-                <BookmarkIcon
-                    size={28}
-                    class={stared
-                        ? "fill-primary text-primary duration-150 transition-all"
-                        : "fill-none text-black duration-150 transition-all"}
-                />
-            </button>
-        </div>
-    </div>
-
-    <div class="flex flex-col rounded-2xl bg-white text-xl">
-        <Dialog title="Spieler">
-            {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
-                    <UserIcon size={28} />
-                    <p>Spieler</p>
-                    <p class="ml-auto">{playerCount}</p>
-                </div>
-            {/snippet}
-
-            <div class="size-full overflow-y-auto flex flex-col gap-3">
-                {#each player as p, i}
-                    <input
-                        placeholder={`Spieler ${i + 1}`}
-                        class="text-xl border-none outline-none animate-in animate-out fade-in zoom-in-50"
-                        value={p}
-                        oninput={(e) => updatePlayer(i, e.currentTarget.value)}
-                    />
-                    {#if i + 1 != player.length}
-                        <div class="mx-2 border-b border-contrast/50"></div>
-                    {/if}
-                {/each}
-            </div>
-        </Dialog>
-
-        <div class="mx-8 border-b border-contrast/50"></div>
-
-        <Dialog title="Impostor">
-            {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
-                    <HatGlassesIcon size={28} />
-                    <p>Impostor</p>
-
-                    <p class="ml-auto">
-                        {getImpostorCount()}
-                    </p>
-                </div>
-            {/snippet}
-
-            <div class="flex flex-col gap-3">
-                {#if playerCount < minPlayers}
-                    <p class="text-start text-black/50">
-                        Bitte mindestens {minPlayers} Spieler hinzufügen
-                    </p>
-                {:else}
-                    <div class="flex flex-row items-center justify-between">
-                        <p class="text-xl">Zufällige Anzahl?</p>
-                        <Switch bind:checked={randomImpostor} />
+                    <div class="flex flex-col gap-3 text-left text-black/70">
+                        <p>Tragt alle Spieler ein, wählt Kategorien und startet die Runde.</p>
+                        <p>
+                            Vor jeder Karte wird das Gerät an die angezeigte Person weitergegeben.
+                        </p>
+                        <p>
+                            Geheime Karten bleiben nur sichtbar, solange sie gedrückt gehalten
+                            werden.
+                        </p>
+                        <p>
+                            Nach allen Reveals startet die Diskussion mit einem zufälligen
+                            Startspieler.
+                        </p>
                     </div>
+                </Dialog>
 
-                    <div class="mx-2 border-b border-contrast/50"></div>
-                    {#if randomImpostor}
-                        <div class="w-full px-3 pt-10 pb-3">
-                            <Slider
-                                step={1}
-                                min={1}
-                                max={playerCount - 1}
-                                bind:value={randomImpostorRange}
-                                type="multiple"
-                            />
-                        </div>
+                <div class="h-9 border-r border-contrast/50"></div>
 
-                        <!--Change to Method-->
-                        {#if randomImpostorRange[0] === randomImpostorRange[1]}
-                            <p class="text-center text text-black">
-                                {randomImpostorRange[0]} Impostor
-                            </p>
-                        {:else}
-                            <p class="text-center text text-black">
-                                {randomImpostorRange[0]} - {randomImpostorRange[1]} Impostor
-                            </p>
-                        {/if}
-                    {:else}
-                        <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                            {#each selectedPlayers as p, i}
-                                {#if i < playerCount - 1}
-                                    <button
-                                        class="text-xl flex flex-row items-center justify-between w-full"
-                                        onclick={() => (selectedImpostorCount = i + 1)}
-                                    >
-                                        <p>
-                                            {i + 1} Impostor
-                                        </p>
-
-                                        {#if i + 1 == selectedImpostorCount}
-                                            <p class=" text-primary"><CheckIcon /></p>
-                                        {/if}
-                                    </button>
-
-                                    {#if i != playerCount - 2}
-                                        <div class="mx-2 border-b border-contrast/50"></div>
-                                    {/if}
-                                {/if}
-                            {/each}
-                        </div>
-                    {/if}
-                {/if}
+                <button
+                    class="flex size-12 items-center justify-center"
+                    type="button"
+                    aria-label={starred ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}
+                    onclick={() => (starred = !starred)}>
+                    <BookmarkIcon
+                        size={28}
+                        class={starred
+                            ? "fill-primary text-primary transition-all duration-150"
+                            : "fill-none text-black transition-all duration-150"} />
+                </button>
             </div>
-        </Dialog>
-
-        <div class="mx-8 border-b border-contrast/50"></div>
-
-        <Dialog title="Kategorien">
-            {#snippet trigger()}
-                <div class="flex flex-row items-center gap-3 px-6 py-4">
-                    <CircleDashedIcon size={28} />
-                    <p>Kategorien</p>
-
-                    <p class="ml-auto">{selectedCategories.length}</p>
-                </div>
-            {/snippet}
-
-            <div class="w-full min-h-0 max-h-full flex flex-col gap-3 overflow-y-auto">
-                {#each impostorCategories as impostorCategory, i}
-                    <button
-                        class="text-xl flex flex-row items-center justify-between w-full"
-                        onclick={() => onCategorySelect(impostorCategory.id)}
-                    >
-                        <div class="flex flex-col items-start gap-1">
-                            <p>
-                                {impostorCategory.name}
-                            </p>
-                            <p class="text-sm">
-                                {impostorCategory.description}
-                            </p>
-                        </div>
-
-                        {#if selectedCategories.includes(impostorCategory.id)}
-                            <p class=" text-primary"><CheckIcon /></p>
-                        {/if}
-                    </button>
-
-                    {#if i != impostorCategories.length - 1}
-                        <div class="mx-2 border-b border-contrast/50"></div>
-                    {/if}
-                {/each}
-            </div>
-        </Dialog>
-
-        <div class="mx-8 border-b border-contrast/50"></div>
-
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
-            <SearchIcon size={28} />
-            <p>Hinweise</p>
-            <Switch class="ml-auto" />
-        </div>
-
-        <div class="mx-8 border-b border-contrast/50"></div>
-
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
-            <TimerIcon size={28} />
-            <p>Zeitlimit</p>
-
-            <Switch class="ml-auto" />
-        </div>
-    </div>
-
-    <div class="flex flex-col rounded-2xl bg-white text-xl">
-        <div class="flex flex-row items-center gap-3 px-6 py-4">
-            <UserIcon size={28} />
-            <p>Geräte</p>
-        </div>
-    </div>
-
-    <div class="flex flex-col gap-2 items-center w-full mt-auto mb-10">
-        {#if playerCount < minPlayers}
-            <p class="text-red-500">Bitte mindestens {minPlayers} Spieler hinzufügen</p>
         {/if}
-        <button
-            class="bg-primary text-white rounded-xl px-6 py-3 font-semibold disabled:bg-primary/50 w-full"
-            disabled={playerCount < minPlayers}
-        >
-            Spiel starten
-        </button>
     </div>
+
+    {#if phase === "setup"}
+        <SettingsPhase onNextPhase={startRevealFlow} />
+    {:else if phase === "reveal"}
+        <RevealPhase onNextPhase={startDiscussionPhase} />
+    {:else if phase === "discussion"}
+        <DiscussionPhase onNextPhase={startResultPhase} />
+    {:else if phase === "results"}
+        <ResultsPhase onNextGame={startRevealFlow} />
+    {/if}
 </div>

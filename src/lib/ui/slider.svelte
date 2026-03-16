@@ -11,27 +11,23 @@
     bind:value
     bind:ref
     {...restProps as any}
-    class="relative flex w-full touch-none select-none items-center"
->
+    class="relative flex w-full touch-none items-center select-none">
     {#snippet children({ tickItems, thumbItems })}
         <span
-            class="bg-contrast/25 relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full"
-        >
-            <Slider.Range class="bg-primary absolute h-full" />
+            class="relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full bg-contrast/25">
+            <Slider.Range class="absolute h-full bg-primary" />
         </span>
         {#each thumbItems as { index } (index)}
             <Slider.Thumb
                 {index}
-                class="bg-white z-5 focus-visible:outline-hidden border-contrast/25 border data-active:scale-[0.98] block size-6.5 cursor-pointer rounded-full shadow-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
-            />
+                class="z-5 block size-6.5 cursor-pointer rounded-full border border-contrast/25 bg-white shadow-sm transition-colors focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-active:scale-[0.98]" />
         {/each}
         {#each tickItems as { index, value } (index)}
-            <Slider.Tick {index} class="bg-white z-1 h-2 w-0.5" />
+            <Slider.Tick {index} class="z-1 h-2 w-0.5 bg-white" />
             <Slider.TickLabel
                 {index}
-                class="text-black/25 data-bounded:text-black mb-5 text-sm font-medium leading-none"
-                position="top"
-            >
+                class="mb-5 text-sm leading-none font-medium text-black/25 data-bounded:text-black"
+                position="top">
                 {value}
             </Slider.TickLabel>
         {/each}
