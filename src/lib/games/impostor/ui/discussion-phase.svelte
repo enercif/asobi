@@ -1,24 +1,18 @@
 <script lang="ts">
-    import type { ImpostorRound, ImpostorTimerConfig } from "$lib/games/impostor/types";
-    import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion-timer-circle.svelte";
+    import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion/discussion-timer-circle.svelte";
+    import { impostorGameState } from "../states/impostor.game.state.svelte";
+    import { impostorSettingsState } from "../states/impostor.state.svelte";
 
     type Props = {
-        round: ImpostorRound;
-        timer: ImpostorTimerConfig;
-        onShowImpostors: () => void;
-        onTimerEnd: () => void;
+        onNextPhase: () => void;
     };
 
-    let { round, timer, onShowImpostors, onTimerEnd }: Props = $props();
+    let { onNextPhase }: Props = $props();
 
     let hasEnded = $state(false);
     let elapsedMs = $state(0);
 
-    let startingPlayer = $derived.by(
-        () =>
-            round.players.find((player) => player.id === round.startingPlayerId) ??
-            round.players[0],
-    );
+    let timer = $derived(impostorSettingsState.timerConfig);
     let totalDurationMs = $derived(timer.enabled ? timer.durationSeconds * 1000 : null);
     let remainingMs = $derived.by(() => {
         if (!timer.enabled || totalDurationMs === null) {
@@ -67,7 +61,7 @@
 
             if (nextElapsedMs >= totalDurationMs) {
                 hasEnded = true;
-                onTimerEnd();
+                onNextPhase();
                 return;
             }
 
@@ -94,19 +88,16 @@
         }
 
         hasEnded = true;
-        onShowImpostors();
+        onNextPhase();
     }
 </script>
 
 <div class="flex h-full flex-col gap-8">
-    <div class="flex flex-col gap-3 text-center">
-        <h2 class="text-4xl font-bold text-balance text-black">
-            {startingPlayer?.name ?? "Ein Spieler"} beginnt
-        </h2>
-    </div>
-
     <div
-        class="flex flex-col items-center justify-center gap-6 rounded-4xl bg-white px-8 py-10 text-center shadow-sm">
+        class="mt-8 flex flex-col items-center justify-center gap-6 rounded-4xl bg-white px-8 py-10 text-center shadow-sm">
+        <h2 class="text-4xl font-bold text-balance text-black">
+            {impostorGameState.startingPlayerName} beginnt
+        </h2>
         <DiscussionTimerCircle {timer} statusLabel={timerStatusLabel} {strokeDashoffset} />
     </div>
 

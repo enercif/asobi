@@ -1,0 +1,320 @@
+[
+    {
+        "id": "1",
+        "name": "Tiere",
+        "description": "Bekannte Tiere aus aller Welt",
+        "words": [
+            {
+                "word": "Hund",
+                "hints": ["Bellt", "Vier Beine", "Haustier"]
+            },
+            {
+                "word": "Katze",
+                "hints": ["Miau", "Schnurrt", "Haustier"]
+            },
+            {
+                "word": "Elefant",
+                "hints": ["Rüssel", "Groß", "Savanne"]
+            },
+            {
+                "word": "Löwe",
+                "hints": ["Mähne", "Raubtier", "Savanne"]
+            },
+            {
+                "word": "Giraffe",
+                "hints": ["Langer Hals", "Gefleckt", "Afrika"]
+            },
+            {
+                "word": "Delfin",
+                "hints": ["Meer", "Intelligent", "Springt"]
+            },
+            {
+                "word": "Pinguin",
+                "hints": ["Schwarzweiß", "Watschelt", "Antarktis"]
+            },
+            {
+                "word": "Känguru",
+                "hints": ["Beutel", "Springt", "Australien"]
+            },
+            {
+                "word": "Eule",
+                "hints": ["Nacht", "Große Augen", "Fliegt"]
+            },
+            {
+                "word": "Fuchs",
+                "hints": ["Rotbraun", "Schlau", "Wald"]
+            },
+            {
+                "word": "Schildkröte",
+                "hints": ["Panzer", "Langsam", "Alt"]
+            },
+            {
+                "word": "Zebra",
+                "hints": ["Streifen", "Savanne", "Pferdeartig"]
+            },
+            {
+                "word": "Bär",
+                "hints": ["Winterschlaf", "Groß", "Tatzen"]
+            },
+            {
+                "word": "Hase",
+                "hints": ["Lange Ohren", "Hoppelt", "Karotte"]
+            },
+            {
+                "word": "Schmetterling",
+                "hints": ["Bunte Flügel", "Leicht", "Insekt"]
+            },
+            {
+                "word": "Krokodil",
+                "hints": ["Schuppen", "Fluss", "Gefährlich"]
+            },
+            {
+                "word": "Panda",
+                "hints": ["Schwarzweiß", "Bambus", "China"]
+            },
+            {
+                "word": "Hai",
+                "hints": ["Flosse", "Meer", "Raubfisch"]
+            },
+
+            {
+                "word": "Otter",
+                "hints": ["Fluss", "Verspielt", "Schwimmt"]
+            },
+            {
+                "word": "Chamäleon",
+                "hints": ["Farbwechsel", "Echse", "Zunge"]
+            },
+            {
+                "word": "Pfau",
+                "hints": ["Bunt", "Federrad", "Stolz"]
+            },
+            {
+                "word": "Biene",
+                "hints": ["Summt", "Honig", "Stachel"]
+            },
+            {
+                "word": "Gorilla",
+                "hints": ["Affenartig", "Stark", "Dschungel"]
+            },
+            {
+                "word": "Wal",
+                "hints": ["Riesig", "Ozean", "Bläst"]
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "Essen",
+        "description": "Beliebte Gerichte und Lebensmittel",
+        "words": [
+            {
+                "word": "Pizza",
+                "hints": ["Italienisch", "Käse", "Teig"]
+            },
+            {
+                "word": "Burger",
+                "hints": ["Fast Food", "Brötchen", "Patty"]
+            },
+            {
+                "word": "Sushi",
+                "hints": ["Japanisch", "Reis", "Roh"]
+            },
+            {
+                "word": "Pasta",
+                "hints": ["Nudeln", "Italienisch", "Soße"]
+            },
+            {
+                "word": "Tacos",
+                "hints": ["Mexikanisch", "Gefüllt", "Maistortilla"]
+            },
+            {
+                "word": "Croissant",
+                "hints": ["Französisch", "Blättrig", "Frühstück"]
+            },
+            {
+                "word": "Döner",
+                "hints": ["Fladenbrot", "Spieß", "Salat"]
+            },
+            {
+                "word": "Paella",
+                "hints": ["Spanisch", "Pfanne", "Reis"]
+            },
+            {
+                "word": "Ramen",
+                "hints": ["Japanisch", "Brühe", "Nudelschüssel"]
+            },
+            {
+                "word": "Lasagne",
+                "hints": ["Geschichtet", "Ofen", "Nudeln"]
+            },
+            {
+                "word": "Currywurst",
+                "hints": ["Deutsch", "Soße", "Imbiss"]
+            },
+            {
+                "word": "Falafel",
+                "hints": ["Kichererbse", "Frittiert", "Vegetarisch"]
+            },
+            {
+                "word": "Risotto",
+                "hints": ["Cremig", "Reis", "Italienisch"]
+            },
+            {
+                "word": "Burrito",
+                "hints": ["Gerollt", "Mexikanisch", "Gefüllt"]
+            },
+            {
+                "word": "Pfannkuchen",
+                "hints": ["Süß", "Flach", "Pfanne"]
+            },
+            {
+                "word": "Apfelstrudel",
+                "hints": ["Apfel", "Ofen", "Dessert"]
+            },
+            {
+                "word": "Gulasch",
+                "hints": ["Eintopf", "Paprika", "Ungarisch"]
+            },
+            {
+                "word": "Quiche",
+                "hints": ["Herzhaft", "Ofen", "Eier"]
+            },
+            {
+                "word": "Müsli",
+                "hints": ["Frühstück", "Flocken", "Schüssel"]
+            },
+            {
+                "word": "Waffel",
+                "hints": ["Süß", "Karomuster", "Gebäck"]
+            },
+            {
+                "word": "Knödel",
+                "hints": ["Rund", "Beilage", "Sättigend"]
+            },
+            {
+                "word": "Bratwurst",
+                "hints": ["Grill", "Deutsch", "Wurst"]
+            },
+            {
+                "word": "Gazpacho",
+                "hints": ["Kalt", "Tomate", "Spanisch"]
+            },
+            {
+                "word": "Nudelsalat",
+                "hints": ["Kalt", "Party", "Schüssel"]
+            },
+            {
+                "word": "Käsespätzle",
+                "hints": ["Käse", "Pfanne", "Alpen"]
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "name": "Berufe",
+        "description": "Berufe, die man schnell erraten kann",
+        "words": [
+            {
+                "word": "Arzt",
+                "hints": ["Krankenhaus", "Diagnose", "Weiße Kittel"]
+            },
+            {
+                "word": "Bäcker",
+                "hints": ["Früh auf", "Ofen", "Brot"]
+            },
+            {
+                "word": "Gärtner",
+                "hints": ["Pflanzen", "Erde", "Gießkanne"]
+            },
+            {
+                "word": "Pilot",
+                "hints": ["Cockpit", "Flugzeug", "Wolken"]
+            },
+            {
+                "word": "Polizist",
+                "hints": ["Uniform", "Gesetz", "Streife"]
+            },
+            {
+                "word": "Schauspieler",
+                "hints": ["Bühne", "Rolle", "Kamera"]
+            },
+            {
+                "word": "Musiker",
+                "hints": ["Melodie", "Auftritt", "Instrument"]
+            },
+            {
+                "word": "Fotograf",
+                "hints": ["Kamera", "Bilder", "Objektiv"]
+            },
+            {
+                "word": "Kellner",
+                "hints": ["Restaurant", "Serviert", "Tablett"]
+            },
+            {
+                "word": "Architekt",
+                "hints": ["Gebäude", "Pläne", "Entwurf"]
+            },
+            {
+                "word": "Anwalt",
+                "hints": ["Gericht", "Mandant", "Recht"]
+            },
+            {
+                "word": "Mechaniker",
+                "hints": ["Werkstatt", "Motor", "Reparatur"]
+            },
+            {
+                "word": "Friseur",
+                "hints": ["Schere", "Haare", "Salon"]
+            },
+            {
+                "word": "Journalist",
+                "hints": ["Artikel", "Recherche", "Nachrichten"]
+            },
+            {
+                "word": "Koch",
+                "hints": ["Küche", "Rezepte", "Topf"]
+            },
+            {
+                "word": "Schneider",
+                "hints": ["Stoff", "Nadel", "Maßband"]
+            },
+            {
+                "word": "Zahnarzt",
+                "hints": ["Bohrer", "Praxis", "Zähne"]
+            },
+            {
+                "word": "Programmierer",
+                "hints": ["Code", "Computer", "Tastatur"]
+            },
+            {
+                "word": "Elektriker",
+                "hints": ["Strom", "Kabel", "Sicherung"]
+            },
+            {
+                "word": "Tauchlehrer",
+                "hints": ["Meer", "Flossen", "Unterwasser"]
+            },
+            {
+                "word": "Astronaut",
+                "hints": ["Weltraum", "Helm", "Rakete"]
+            },
+            {
+                "word": "Bibliothekar",
+                "hints": ["Bücher", "Leise", "Regale"]
+            },
+            {
+                "word": "Florist",
+                "hints": ["Blumen", "Strauß", "Duft"]
+            },
+            {
+                "word": "Taxifahrer",
+                "hints": ["Stadt", "Fahrgast", "Lenkrad"]
+            },
+            {
+                "word": "Detektiv",
+                "hints": ["Spur", "Rätsel", "Lupe"]
+            }
+        ]
+    }
+]

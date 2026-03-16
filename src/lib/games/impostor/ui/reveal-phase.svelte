@@ -1,110 +1,59 @@
 <script lang="ts">
-    import type { ImpostorRevealCard } from "$lib/games/impostor/types";
+    import { onMount } from "svelte";
+    import { impostorGameState } from "../states/impostor.game.state.svelte";
+    import { impostorSettingsState } from "../states/impostor.state.svelte";
 
     type Props = {
-        card: ImpostorRevealCard;
-        currentPlayerIndex: number;
-        totalPlayers: number;
-        canAdvance: boolean;
-        isLastPlayer: boolean;
-        onReveal: () => void;
-        onNextPlayer: () => void;
-        onStartGame: () => void;
+        onNextPhase: () => void;
     };
 
-    let {
-        card,
-        currentPlayerIndex,
-        totalPlayers,
-        canAdvance,
-        isLastPlayer,
-        onReveal,
-        onNextPlayer,
-        onStartGame,
-    }: Props = $props();
+    let { onNextPhase }: Props = $props();
 
     let isHoldingCard = $state(false);
-    let activePointerId = $state<number | null>(null);
-    const secretHeadline = $derived(card.word ?? "Impostor");
+    let hasHeldCard = $state(false);
+    let currentPlayerIndex = $state(0);
+    let randomHint = $state("");
 
-    function startReveal() {
+    let currentPlayer = $derived(impostorGameState.players[currentPlayerIndex]);
+    let isLastPlayer = $derived(currentPlayerIndex === impostorGameState.players.length - 1);
+
+    function onPress() {
         isHoldingCard = true;
-        onReveal();
     }
 
-    function endReveal(pointerId?: number) {
-        if (pointerId !== undefined && activePointerId !== null && pointerId !== activePointerId) {
-            return;
-        }
-
-        activePointerId = null;
+    function onRelease() {
         isHoldingCard = false;
+        hasHeldCard = true;
     }
 
-    function handlePointerdown(event: PointerEvent) {
-        if (!event.isPrimary || event.button !== 0) {
-            return;
-        }
-
-        const button = event.currentTarget as HTMLButtonElement;
-
-        activePointerId = event.pointerId;
-        button.setPointerCapture(event.pointerId);
-        startReveal();
+    function getRandomHint() {
+        const hints = impostorGameState.selectedWords.hints;
+        return hints[Math.floor(Math.random() * hints.length)];
     }
 
-    function handlePointerup(event: PointerEvent) {
-        if (activePointerId !== event.pointerId) {
-            return;
-        }
-
-        const button = event.currentTarget as HTMLButtonElement;
-
-        if (button.hasPointerCapture(event.pointerId)) {
-            button.releasePointerCapture(event.pointerId);
-        }
-
-        endReveal(event.pointerId);
+    function onNextPlayer() {
+        if (!hasHeldCard) return;
+        currentPlayerIndex += 1;
+        hasHeldCard = false;
+        randomHint = getRandomHint();
     }
 
-    function handleKeydown(event: KeyboardEvent) {
-        if (event.repeat || (event.key !== " " && event.key !== "Enter")) {
-            return;
-        }
-
-        event.preventDefault();
-        startReveal();
-    }
-
-    function handleKeyup(event: KeyboardEvent) {
-        if (event.key !== " " && event.key !== "Enter") {
-            return;
-        }
-
-        event.preventDefault();
-        endReveal();
-    }
+    onMount(() => {
+        randomHint = getRandomHint();
+    });
 </script>
 
-<div class=" flex h-full flex-col justify-start gap-10">
-    <div class="flex flex-col items-center gap-1 text-center">
-        <h2 class="text-4xl font-bold text-black">{card.player.name}</h2>
-        <p class="text-base text-black/60">Spieler {currentPlayerIndex + 1} von {totalPlayers}</p>
-    </div>
-
+<div class=" flex h-full flex-col justify-center gap-4">
     <button
-        class={`flex h-fit w-full touch-none flex-col items-center justify-center gap-6 rounded-4xl  bg-white px-8 py-10 text-center text-black shadow-sm transition-transform select-none `}
+        class="mt-10 flex h-fit w-full touch-none flex-col items-center justify-center gap-6 rounded-4xl bg-white px-8 py-10 text-center text-black shadow-sm transition-transform select-none"
         aria-pressed={isHoldingCard}
         type="button"
-        onpointerdown={handlePointerdown}
-        onpointerup={handlePointerup}
-        onpointerleave={() => endReveal(activePointerId ?? undefined)}
-        onpointercancel={(event) => endReveal(event.pointerId)}
-        onlostpointercapture={(event) => endReveal(event.pointerId)}
-        onkeydown={handleKeydown}
-        onkeyup={handleKeyup}
-        onblur={() => endReveal()}>
+        onpointerdown={onPress}
+        onpointerup={onRelease}
+        onpointerleave={onRelease}>
         <div class="flex w-full max-w-xl flex-col items-center gap-8">
+            <h2 class="text-4xl font-bold text-black">{currentPlayer.name}</h2>
+
             <div class="relative flex min-h-48 w-full items-center justify-center">
                 <div
                     class={`flex max-w-lg flex-col items-center gap-1 text-center transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${
@@ -113,13 +62,15 @@
                             : "translate-y-0 -rotate-[1.5deg] opacity-0"
                     }`}>
                     <p
-                        class={`text-3xl font-extrabold tracking-[0.2em] text-balance uppercase ${card.word ? "text-black" : "text-red-600"}`}>
-                        {secretHeadline}
+                        class={`text-3xl font-extrabold tracking-[0.2em] text-balance uppercase ${currentPlayer.role === "civilian" ? "text-black" : "text-red-600"}`}>
+                        {currentPlayer.role === "civilian"
+                            ? impostorGameState.selectedWords.word
+                            : "Impostor"}
                     </p>
 
-                    {#if card.hint}
+                    {#if impostorSettingsState.hintsEnabled && currentPlayer.role === "impostor"}
                         <p class="max-w-sm text-base font-semibold text-black">
-                            Hinweis: {card.hint}
+                            Hinweis: {randomHint}
                         </p>
                     {/if}
                 </div>
@@ -144,12 +95,16 @@
         </div>
     </button>
 
+    <p class="text-center text-base text-black/60">
+        Spieler {currentPlayerIndex + 1} von {impostorGameState.players.length}
+    </p>
+
     <div class="mt-auto mb-10 flex flex-col items-center gap-3 text-center">
         <button
             class="w-full rounded-xl bg-primary px-6 py-3 text-lg font-semibold text-white disabled:cursor-not-allowed disabled:bg-primary/50 disabled:text-white/70"
             type="button"
-            disabled={!canAdvance}
-            onclick={isLastPlayer ? onStartGame : onNextPlayer}>
+            disabled={!hasHeldCard}
+            onclick={isLastPlayer ? onNextPhase : onNextPlayer}>
             {isLastPlayer ? "Spiel starten" : "Nächster Spieler"}
         </button>
     </div>

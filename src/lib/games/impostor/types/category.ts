@@ -1,8 +1,11 @@
-import type { ImpostorWordEntry } from "./game";
-
 export type ImpostorCategory = {
     id: string;
     name: string;
     description: string;
-    words: ImpostorWordEntry[];
+    words: ImpostorCategoryWord[];
+};
+
+export type ImpostorCategoryWord = {
+    word: string;
+    hints: string[];
 };
