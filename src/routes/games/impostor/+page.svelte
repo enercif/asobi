@@ -1,7 +1,7 @@
 <script lang="ts">
     import { startRound } from "$lib/games/impostor/round";
     import type { ImpostorGamePhase } from "$lib/games/impostor/types/games";
-
+    import { goto } from "$app/navigation";
     import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
     import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
     import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
@@ -24,16 +24,30 @@
     function startResultPhase() {
         phase = "results";
     }
+
+    function navigateBack() {
+        if (phase === "setup") {
+            goto("/");
+        } else {
+            if (
+                window.confirm(
+                    "Möchtest du das Spiel beenden? Dein aktueller Fortschritt geht verloren.",
+                )
+            ) {
+                phase = "setup";
+            }
+        }
+    }
 </script>
 
 <div class="flex h-full flex-col gap-10">
     <div class="relative flex flex-row items-center justify-between">
-        <a
+        <button
             class="flex size-12 items-center justify-center rounded-lg bg-white"
-            href="/"
+            onclick={navigateBack}
             aria-label="Zurück zur Startseite">
             <ChevronLeft size={28} />
-        </a>
+        </button>
 
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <h1 class="text-3xl font-bold">Impostor</h1>
