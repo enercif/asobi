@@ -1,7 +1,7 @@
 import type { ImpostorSettingsState } from "../types/settings";
 
 export const IMPOSTOR_MIN_PLAYERS = 3;
-export const IMPOSTOR_TIMER_OPTIONS = [60, 120, 180, 300, 600] as const;
+export const IMPOSTOR_TIMER_OPTIONS = [30, 60, 120, 180, 300, 600] as const;
 
 export const impostorSettingsState = $state<ImpostorSettingsState>({
     playerInputs: [""],

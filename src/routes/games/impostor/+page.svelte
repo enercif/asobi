@@ -1,7 +1,7 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { startRound } from "$lib/games/impostor/round";
     import type { ImpostorGamePhase } from "$lib/games/impostor/types/games";
-    import { goto } from "$app/navigation";
     import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
     import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
     import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
@@ -28,6 +28,8 @@
     function navigateBack() {
         if (phase === "setup") {
             goto("/");
+        } else if (phase === "results") {
+            phase = "setup"!;
         } else {
             if (
                 window.confirm(

@@ -117,7 +117,7 @@
             type="button"
             disabled={!hasHeldCard}
             onclick={isLastPlayer ? onNextPhase : onNextPlayer}>
-            {isLastPlayer ? "Spiel starten" : "Nächster Spieler"}
+            {isLastPlayer ? "Diskussion starten" : "Nächster Spieler"}
         </button>
     </div>
 </div>

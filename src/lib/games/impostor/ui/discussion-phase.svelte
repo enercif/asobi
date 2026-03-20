@@ -1,5 +1,6 @@
 <script lang="ts">
     import DiscussionTimerCircle from "$lib/games/impostor/ui/discussion/discussion-timer-circle.svelte";
+    import { onDestroy, onMount } from "svelte";
     import { impostorGameState } from "../states/impostor.game.state.svelte";
     import { impostorSettingsState } from "../states/impostor.state.svelte";
 
@@ -9,87 +10,37 @@
 
     let { onNextPhase }: Props = $props();
 
-    let hasEnded = $state(false);
-    let elapsedMs = $state(0);
+    let timerConfig = $derived(impostorSettingsState.timerConfig);
+    let remainingTime = $derived(timerConfig.durationSeconds);
+    let progress = $derived(getProgress());
 
-    let timer = $derived(impostorSettingsState.timerConfig);
-    let totalDurationMs = $derived(timer.enabled ? timer.durationSeconds * 1000 : null);
-    let remainingMs = $derived.by(() => {
-        if (!timer.enabled || totalDurationMs === null) {
-            return null;
+    let locked = $state(true);
+
+    let interval: NodeJS.Timeout;
+
+    function getProgress() {
+        if (remainingTime === timerConfig.durationSeconds || remainingTime === 0) {
+            return remainingTime / timerConfig.durationSeconds;
         }
+        return (remainingTime - 1) / timerConfig.durationSeconds;
+    }
 
-        return Math.max(totalDurationMs - elapsedMs, 0);
-    });
-    let remainingSeconds = $derived.by(() => {
-        if (remainingMs === null) {
-            return null;
-        }
+    onMount(() => {
+        setTimeout(() => {
+            locked = false;
+        }, 2000);
 
-        return Math.ceil(remainingMs / 1000);
-    });
-    let progress = $derived.by(() => {
-        if (!timer.enabled || totalDurationMs === null) {
-            return 1;
-        }
-
-        return Math.max(Math.min((remainingMs ?? 0) / totalDurationMs, 1), 0);
-    });
-    let strokeDashoffset = $derived(703.7167544041137 * (1 - progress));
-    let timerStatusLabel = $derived.by(() => {
-        if (!timer.enabled) {
-            return "Offen";
-        }
-
-        return formatRemainingTime(remainingSeconds ?? timer.durationSeconds);
-    });
-
-    $effect(() => {
-        if (!timer.enabled || totalDurationMs === null || hasEnded) {
-            return;
-        }
-
-        let animationFrameId = 0;
-        const startedAt = performance.now();
-
-        elapsedMs = 0;
-
-        const tick = (now: number) => {
-            const nextElapsedMs = Math.min(now - startedAt, totalDurationMs);
-
-            elapsedMs = nextElapsedMs;
-
-            if (nextElapsedMs >= totalDurationMs) {
-                hasEnded = true;
-                onNextPhase();
-                return;
+        interval = setInterval(() => {
+            remainingTime--;
+            if (remainingTime <= 0) {
+                clearInterval(interval);
             }
-
-            animationFrameId = requestAnimationFrame(tick);
-        };
-
-        animationFrameId = requestAnimationFrame(tick);
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
+        }, 1000);
     });
 
-    function formatRemainingTime(totalSeconds: number) {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    }
-
-    function revealImpostors() {
-        if (hasEnded) {
-            return;
-        }
-
-        hasEnded = true;
-        onNextPhase();
-    }
+    onDestroy(() => {
+        clearInterval(interval);
+    });
 </script>
 
 <div class="flex h-full flex-col gap-8">
@@ -98,13 +49,15 @@
         <h2 class="text-4xl font-bold text-balance text-black">
             {impostorGameState.startingPlayerName} beginnt
         </h2>
-        <DiscussionTimerCircle {timer} statusLabel={timerStatusLabel} {strokeDashoffset} />
+        <DiscussionTimerCircle {timerConfig} {remainingTime} {progress} />
     </div>
 
     <button
-        class="mt-auto mb-10 w-full rounded-xl bg-red-600 px-6 py-3 text-lg font-semibold text-white"
+        class="mt-auto mb-10 w-full rounded-xl bg-red-600 px-6 py-3 text-lg font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:bg-red-300"
+        class:animate-alarm={remainingTime <= 0}
+        disabled={locked}
         type="button"
-        onclick={revealImpostors}>
+        onclick={onNextPhase}>
         Impostors anzeigen
     </button>
 </div>

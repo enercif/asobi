@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import { getLocale } from "$lib/paraglide/runtime";
 import { allCategories } from "./categories";
 import { impostorGameState } from "./states/impostor.game.state.svelte";
@@ -15,9 +16,15 @@ export function startRound() {
 }
 
 function mapPlayerInputsToPlayers(): ImpostorPlayer[] {
-    return impostorSettingsState.playerInputs
-        .filter((player) => player.trim() !== "")
-        .map((name) => ({ id: crypto.randomUUID(), name, role: "civilian" }));
+    if (dev) {
+        return impostorSettingsState.playerInputs
+            .filter((player) => player.trim() !== "")
+            .map((name) => ({ id: `${name}-${Math.random()}`, name, role: "civilian" }));
+    } else {
+        return impostorSettingsState.playerInputs
+            .filter((player) => player.trim() !== "")
+            .map((name) => ({ id: crypto.randomUUID(), name, role: "civilian" }));
+    }
 }
 
 function randomizeImpostorRoles(players: ImpostorPlayer[]): ImpostorPlayer[] {
