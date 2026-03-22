@@ -285,12 +285,33 @@ export function horizontalLoop(
     return timeline;
 }
 
-//@ts-ignore
-export function stopOverscroll(element: any) {
-    element = gsap.utils.toArray(element)[0] || window;
-    (element === document.body || element === document.documentElement) && (element = window);
+export function stopOverscroll(element: gsap.DOMTarget = window): void {
+    const resolved = gsap.utils.toArray(element)[0];
+    const normalizedElement: Window | HTMLElement =
+        resolved instanceof HTMLElement ? resolved : window;
+    const eventSource: Window | HTMLElement =
+        normalizedElement === document.body || normalizedElement === document.documentElement
+            ? window
+            : normalizedElement;
+    const isRoot = eventSource === window;
+    let scroller: HTMLElement;
+    if (isRoot) {
+        scroller = (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
+    } else {
+        scroller = eventSource as HTMLElement;
+    }
 
-    const getScrollableParent = (target: EventTarget | null) => {
+    let lastScroll = 0;
+    let lastTouch: number | null = null;
+    let forcing = false;
+    let forward = true;
+
+    const ua = `${window.navigator.userAgent}`;
+    const getMax = isRoot
+        ? () => scroller.scrollHeight - window.innerHeight
+        : () => scroller.scrollHeight - scroller.clientHeight;
+
+    const getScrollableParent = (target: EventTarget | null): Element | null => {
         if (!(target instanceof Element)) {
             return null;
         }
@@ -317,78 +338,70 @@ export function stopOverscroll(element: any) {
         return null;
     };
 
-    let lastScroll = 0,
-        //@ts-ignore
-        lastTouch,
-        //@ts-ignore
+    const addListener = (type: string, func: EventListener): void => {
+        eventSource.addEventListener(type, func, { passive: false });
+    };
 
-        forcing,
-        forward = true,
-        isRoot = element === window,
-        scroller = isRoot ? document.scrollingElement : element,
-        ua = window.navigator.userAgent + "",
-        getMax = isRoot
-            ? () => scroller.scrollHeight - window.innerHeight
-            : () => scroller.scrollHeight - scroller.clientHeight,
-        //@ts-ignore
+    const revert = (): void => {
+        scroller.style.overflowY = "auto";
+        forcing = false;
+    };
 
-        addListener = (type, func) => element.addEventListener(type, func, { passive: false }),
-        revert = () => {
-            scroller.style.overflowY = "auto";
-            forcing = false;
-        },
-        kill = () => {
-            forcing = true;
-            scroller.style.overflowY = "hidden";
-            !forward && scroller.scrollTop < 1
-                ? (scroller.scrollTop = 1)
-                : (scroller.scrollTop = getMax() - 1);
-            setTimeout(revert, 1);
-        },
-        //@ts-ignore
+    const kill = (): void => {
+        forcing = true;
+        scroller.style.overflowY = "hidden";
+        if (!forward && scroller.scrollTop < 1) {
+            scroller.scrollTop = 1;
+        } else {
+            scroller.scrollTop = getMax() - 1;
+        }
+        setTimeout(revert, 1);
+    };
 
-        handleTouch = (e) => {
-            if (getScrollableParent(e.target)) {
-                return;
-            }
+    const handleTouch = (e: TouchEvent): void => {
+        if (getScrollableParent(e.target)) {
+            return;
+        }
 
-            let evt = e.changedTouches ? e.changedTouches[0] : e,
-                //@ts-ignore
+        const evt = e.changedTouches[0];
+        if (!evt) {
+            return;
+        }
 
-                forward = evt.pageY <= lastTouch;
-            if (
-                ((!forward && scroller.scrollTop <= 1) ||
-                    (forward && scroller.scrollTop >= getMax() - 1)) &&
-                e.type === "touchmove"
-            ) {
+        const movingForward = lastTouch === null ? true : evt.pageY <= lastTouch;
+
+        if (
+            ((!movingForward && scroller.scrollTop <= 1) ||
+                (movingForward && scroller.scrollTop >= getMax() - 1)) &&
+            e.type === "touchmove"
+        ) {
+            e.preventDefault();
+        } else {
+            lastTouch = evt.pageY;
+        }
+    };
+
+    const handleScroll = (e: Event): void => {
+        if (getScrollableParent(e.target)) {
+            return;
+        }
+
+        if (!forcing) {
+            const scrollTop = scroller.scrollTop;
+            forward = scrollTop > lastScroll;
+            if ((!forward && scrollTop < 1) || (forward && scrollTop >= getMax() - 1)) {
                 e.preventDefault();
-            } else {
-                lastTouch = evt.pageY;
+                kill();
             }
-        },
-        //@ts-ignore
+            lastScroll = scrollTop;
+        }
+    };
 
-        handleScroll = (e) => {
-            if (getScrollableParent(e.target)) {
-                return;
-            }
-
-            //@ts-ignore
-
-            if (!forcing) {
-                let scrollTop = scroller.scrollTop;
-                forward = scrollTop > lastScroll;
-                if ((!forward && scrollTop < 1) || (forward && scrollTop >= getMax() - 1)) {
-                    e.preventDefault();
-                    kill();
-                }
-                lastScroll = scrollTop;
-            }
-        };
     if ("ontouchend" in document && !!ua.match(/Version\/[\d\.]+.*Safari/)) {
-        addListener("scroll", handleScroll);
-        addListener("touchstart", handleTouch);
-        addListener("touchmove", handleTouch);
+        addListener("scroll", handleScroll as EventListener);
+        addListener("touchstart", handleTouch as EventListener);
+        addListener("touchmove", handleTouch as EventListener);
     }
+
     scroller.style.overscrollBehavior = "none";
 }
