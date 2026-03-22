@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from "$app/state";
     import { navigation } from "$lib/navigation";
+    import { m } from "$lib/paraglide/messages";
     import { gsap } from "gsap";
     import { tick } from "svelte";
 
@@ -85,9 +86,14 @@
     }
 
     function getSubtitleForRoute() {
+        const routeId = page.route.id || "";
+
+        if (routeId === "/") {
+            return m.sad_active_mole_bask();
+        }
+
         return (
-            navigation.filter((navigationItem) => navigationItem.href === page.route.id)?.[0]
-                ?.text || ""
+            navigation.filter((navigationItem) => navigationItem.href === routeId)?.[0]?.text || ""
         );
     }
 
