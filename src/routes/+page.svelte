@@ -41,7 +41,7 @@
 
         setTimeout(() => {
             favouritePressed = false;
-        }, 500);
+        }, 300);
     }
 
     async function handleLeverClick() {
@@ -50,7 +50,7 @@
 
         setTimeout(() => {
             leverPressed = false;
-        }, 500);
+        }, 300);
     }
 </script>
 
