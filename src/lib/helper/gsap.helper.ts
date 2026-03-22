@@ -289,6 +289,34 @@ export function horizontalLoop(
 export function stopOverscroll(element: any) {
     element = gsap.utils.toArray(element)[0] || window;
     (element === document.body || element === document.documentElement) && (element = window);
+
+    const getScrollableParent = (target: EventTarget | null) => {
+        if (!(target instanceof Element)) {
+            return null;
+        }
+
+        let current: Element | null = target;
+
+        while (current && current !== document.body && current !== document.documentElement) {
+            if (current === scroller) {
+                return null;
+            }
+
+            const { overflowY } = window.getComputedStyle(current);
+            const canScrollY =
+                (overflowY === "auto" || overflowY === "scroll") &&
+                current.scrollHeight > current.clientHeight;
+
+            if (canScrollY) {
+                return current;
+            }
+
+            current = current.parentElement;
+        }
+
+        return null;
+    };
+
     let lastScroll = 0,
         //@ts-ignore
         lastTouch,
@@ -320,6 +348,10 @@ export function stopOverscroll(element: any) {
         //@ts-ignore
 
         handleTouch = (e) => {
+            if (getScrollableParent(e.target)) {
+                return;
+            }
+
             let evt = e.changedTouches ? e.changedTouches[0] : e,
                 //@ts-ignore
 
@@ -337,6 +369,10 @@ export function stopOverscroll(element: any) {
         //@ts-ignore
 
         handleScroll = (e) => {
+            if (getScrollableParent(e.target)) {
+                return;
+            }
+
             //@ts-ignore
 
             if (!forcing) {

@@ -1,13 +1,48 @@
 <script lang="ts">
-    import { gamesList } from "$lib/games/gameslist";
+    import type { Game } from "$lib/types/game.type";
+    import { TimerIcon, UsersIcon } from "@lucide/svelte";
+
+    interface Props {
+        games: Game[];
+    }
+
+    let { games }: Props = $props();
 </script>
 
-<div class="grid h-full grid-cols-2 gap-5 overflow-y-scroll pb-20 md:grid-cols-3 lg:grid-cols-4">
-    {#each gamesList as game}
-        <a
-            href={game.link}
-            class="flex aspect-2/3 items-center justify-center rounded-2xl bg-[#A6FAFF] text-xl font-bold">
-            {game.name}
+<div
+    class="grid h-full min-h-0 grid-cols-2 gap-5 overflow-y-auto pb-30 [-ms-overflow-style:none] [scrollbar-width:none] md:grid-cols-3 lg:grid-cols-4">
+    {#each games as game (game.link + game.name)}
+        <a href={game.link}>
+            <div
+                class="relative aspect-2/3 overflow-hidden rounded-2xl bg-white will-change-transform">
+                <img
+                    alt={game.name}
+                    class="game-cover size-full object-cover"
+                    src={game.cover}
+                    data-flip-id={`game-${game.name}`} />
+
+                <div
+                    class="absolute inset-0 bg-linear-to-b from-transparent via-transparent
+                          to-black/85 to-95%">
+                </div>
+
+                <div
+                    class="absolute bottom-0 left-0 flex h-fit w-full flex-col gap-1.5 px-5 pb-6 text-white">
+                    <p class="text-xl font-bold uppercase">{game.name}</p>
+
+                    <div class="flex flex-row gap-3">
+                        <div class="flex flex-row gap-1">
+                            <UsersIcon size={20} />
+                            <p class="text-sm font-medium">2+</p>
+                        </div>
+
+                        <div class="flex flex-row gap-1">
+                            <TimerIcon size={20} />
+                            <p class="text-sm font-medium">5m</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </a>
     {/each}
 </div>

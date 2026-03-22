@@ -45,7 +45,7 @@
     {#if page.route.id?.includes("games")}
         {@render children()}
     {:else}
-        <div class="flex size-full flex-col gap-8">
+        <div class="flex size-full min-h-0 flex-col gap-8">
             <div class="flex flex-row items-start justify-between">
                 <div class="flex flex-col">
                     <p class="text-5xl font-bold">Asobi</p>

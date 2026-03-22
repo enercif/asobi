@@ -31,8 +31,8 @@
     }
 </script>
 
-<div class="flex size-full flex-col gap-10 pb-30">
-    <div class="flex flex-row gap-2">
+<div class="flex min-h-0 flex-1 flex-col gap-10">
+    <div class="flex shrink-0 flex-row gap-2">
         <div class="flex w-full flex-row items-center gap-2 rounded-lg bg-white px-2">
             <SearchIcon size={28} />
             <input
@@ -61,11 +61,13 @@
         </button>
     </div>
 
-    {#if listMode === "list"}
-        <GameList bind:this={gameListRef} games={filteredGames} />
-    {:else}
-        <GameGrid />
-    {/if}
+    <div class="relative min-h-0 flex-1">
+        {#if listMode === "list"}
+            <GameList bind:this={gameListRef} games={filteredGames} />
+        {:else}
+            <GameGrid games={filteredGames} />
+        {/if}
+    </div>
 </div>
 
 <Lever active={leverActive} {gameListRef} />
