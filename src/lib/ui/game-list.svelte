@@ -186,7 +186,7 @@
                         data-flip-id={`game-${game.name}`} />
 
                     <div
-                        class="via-transparent# absolute inset-0 bg-linear-to-b from-transparent
+                        class="absolute inset-0 bg-linear-to-b from-transparent via-transparent
                          to-black/85 to-95%">
                     </div>
 
