@@ -11,6 +11,10 @@
 
     --animate-alarm: alarm 0.75s ease-in-out infinite;
 
+    --animate-grow-once: grow-once 0.25s ease-out;
+
+    --animate-jiggle-once: jiggle-once 0.25s ease-out;
+
     @keyframes alarm {
         0%,
         100% {
@@ -43,6 +47,29 @@
         }
         80% {
             transform: translateY(0) rotate(1deg);
+        }
+    }
+
+    @keyframes grow-once {
+        0%,
+        100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.25);
+        }
+    }
+
+    @keyframes jiggle-once {
+        0%,
+        100% {
+            transform: rotate(0deg);
+        }
+        25% {
+            transform: rotate(-15deg);
+        }
+        75% {
+            transform: rotate(15deg);
         }
     }
 }

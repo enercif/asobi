@@ -11,9 +11,14 @@
         SearchIcon,
     } from "@lucide/svelte";
 
-    let deviceMode: "single" | "multi" = $state("single");
     let listMode: "grid" | "list" = $state("list");
+
+    let showFavorites = $state(false);
+    let favouritePressed = $state(false);
+
     let leverActive = $state(false);
+    let leverPressed = $state(false);
+
     let gameListRef = $state<
         | {
               spinToRandomGame: () => Promise<number>;
@@ -29,6 +34,24 @@
     function toggleListMode() {
         listMode = listMode === "list" ? "grid" : "list";
     }
+
+    function handleFavoriteClick() {
+        showFavorites = !showFavorites;
+        favouritePressed = true;
+
+        setTimeout(() => {
+            favouritePressed = false;
+        }, 500);
+    }
+
+    async function handleLeverClick() {
+        leverActive = !leverActive;
+        leverPressed = true;
+
+        setTimeout(() => {
+            leverPressed = false;
+        }, 500);
+    }
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col gap-10">
@@ -41,23 +64,36 @@
                 placeholder="Search" />
         </div>
         <button
-            class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-white"
+            class="relative flex size-12 shrink-0 items-center justify-center rounded-lg bg-white"
             onclick={toggleListMode}>
-            {#if listMode === "list"}
-                <GalleryHorizontalIcon size={28} />
-            {:else}
-                <LayoutGridIcon size={28} />
-            {/if}
-        </button>
-
-        <button class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-white">
-            <HeartIcon size={28} />
+            <GalleryHorizontalIcon
+                data-active={listMode === "list"}
+                size={28}
+                class="absolute scale-0 rotate-90 transition-all duration-300 ease-out data-[active=true]:scale-100 data-[active=true]:rotate-0" />
+            <LayoutGridIcon
+                data-active={listMode === "grid"}
+                size={28}
+                class="absolute scale-0 -rotate-90 transition-all duration-300 ease-out data-[active=true]:scale-100 data-[active=true]:rotate-0" />
         </button>
 
         <button
             class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-white"
-            onclick={() => (leverActive = !leverActive)}>
-            <DicesIcon size={28} />
+            onclick={handleFavoriteClick}>
+            <HeartIcon
+                size={28}
+                data-active={showFavorites}
+                data-pressed={favouritePressed}
+                fill="currentColor"
+                class="fill-transparent transition-all duration-300 data-[active=true]:fill-primary  data-[active=true]:text-primary data-[pressed=true]:animate-grow-once" />
+        </button>
+
+        <button
+            class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-white"
+            onclick={handleLeverClick}>
+            <DicesIcon
+                size={28}
+                data-pressed={leverPressed}
+                class="transition-all duration-300 data-[pressed=true]:animate-jiggle-once" />
         </button>
     </div>
 
