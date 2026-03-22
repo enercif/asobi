@@ -2,7 +2,7 @@
     import { gamesList } from "$lib/games/gameslist";
 </script>
 
-<div class="grid h-full grid-cols-2 gap-5 overflow-y-scroll pb-10 md:grid-cols-3 lg:grid-cols-4">
+<div class="grid h-full grid-cols-2 gap-5 overflow-y-scroll pb-20 md:grid-cols-3 lg:grid-cols-4">
     {#each gamesList as game}
         <a
             href={game.link}

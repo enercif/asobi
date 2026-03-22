@@ -39,7 +39,7 @@
 
         const currentTime = loop.time();
         const duration = loop.duration();
-        const fullTurns = 3;
+        const fullTurns = Math.floor(Math.random() * 6) + 5;
         const targetIndex = Math.floor(Math.random() * games.length);
         let targetTime = loop.times[targetIndex] + duration * fullTurns;
 
