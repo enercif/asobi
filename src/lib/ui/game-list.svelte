@@ -1,183 +1,230 @@
 <script lang="ts">
-    import { gamesList } from "$lib/games/gameslist";
-    import {
-        type EmblaCarouselType,
-        type EmblaOptionsType,
-        type EmblaPluginType,
-    } from "embla-carousel";
-    import useEmblaCarousel from "embla-carousel-svelte";
+    import { horizontalLoop } from "$lib/helper/gsap.helper";
+    import type { Game } from "$lib/types/game.type";
+    import type { HorizontalLoopTimeline } from "$lib/types/gsap.types";
+    import { TimerIcon, UsersIcon } from "@lucide/svelte";
+    import { gsap } from "gsap";
+    import { Draggable } from "gsap/Draggable";
+    import { InertiaPlugin } from "gsap/InertiaPlugin";
+    import { onMount } from "svelte";
 
-    let options: EmblaOptionsType = {
-        align: "center",
-        dragFree: true,
-        containScroll: false,
-        loop: false,
-    };
-    let plugins: EmblaPluginType[] = [];
-    let emblaApi: EmblaCarouselType | undefined;
+    gsap.registerPlugin(Draggable, InertiaPlugin);
 
-    const maxRot = 15;
-    const maxX = 0;
+    interface Props {
+        games: Game[];
+    }
+
+    let { games }: Props = $props();
+
+    let carousel: HTMLDivElement;
+    let slideElements: HTMLAnchorElement[] = $state([]);
+    let cardElements: HTMLDivElement[] = $state([]);
+
+    let currentIndex = $state(0);
+    let isSpinning = $state(false);
+
+    let loop: HorizontalLoopTimeline | undefined;
+
+    const maxRotation = 15;
     const minScale = 0.92;
     const minOpacity = 0.75;
+    const snapTween: gsap.TweenVars = { duration: 0.85, ease: "power3.out" };
 
-    let activeSnap = $state(0);
-    let scrollSnaps: number[] = $state([]);
+    export async function spinToRandomGame() {
+        if (!loop || games.length < 2 || isSpinning) {
+            return currentIndex;
+        }
 
-    let slideStyles: Array<{ r: number; x: number; s: number; o: number }> = $state([]);
-    let isSnapping = $state(false);
+        isSpinning = true;
 
-    let viewportCenterX = 0;
+        const currentTime = loop.time();
+        const duration = loop.duration();
+        const fullTurns = 3;
+        const targetIndex = Math.floor(Math.random() * games.length);
+        let targetTime = loop.times[targetIndex] + duration * fullTurns;
 
-    let throttle = 2;
+        while (targetTime <= currentTime + duration * 2.5) {
+            targetTime += duration;
+        }
 
-    function snapToSlide(index: number) {
-        emblaApi?.scrollTo(index);
+        await new Promise<void>((resolve) => {
+            loop?.tweenTo(targetTime, {
+                duration: 2.8,
+                ease: "power4.inOut",
+                modifiers: {
+                    time: gsap.utils.wrap(0, duration),
+                },
+                onComplete: () => {
+                    isSpinning = false;
+                    resolve();
+                },
+                onInterrupt: () => {
+                    isSpinning = false;
+                    resolve();
+                },
+                overwrite: true,
+            });
+        });
+
+        return targetIndex;
     }
 
-    const setupSnaps = (api: EmblaCarouselType) => {
-        scrollSnaps = api.scrollSnapList();
-        if (slideStyles.length !== scrollSnaps.length) {
-            slideStyles = Array.from({ length: scrollSnaps.length }, () => ({
-                r: 0,
-                x: 0,
-                s: 1,
-                o: 1,
-            }));
-        }
-    };
-
-    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-
-    function updateTween(api: EmblaCarouselType) {
-        if (throttle < 2) {
-            throttle++;
+    onMount(() => {
+        if (!carousel || slideElements.length === 0) {
             return;
         }
-        throttle = 0;
 
-        const slides = api.slideNodes();
-        if (slides.length === 0) return;
+        gsap.set(carousel, { overflow: "visible", scrollSnapType: "none" });
 
-        slideStyles = slides.map((slide) => {
-            const rect = slide.getBoundingClientRect();
-            const slideCenterX = rect.left + rect.width / 2;
-            const distancePx = slideCenterX - viewportCenterX;
-            const distance = rect.width > 0 ? distancePx / rect.width : 0;
-            const abs = Math.abs(distance);
-            const t = clamp(abs, 0, 1);
-            const dir = clamp(distance, -1, 1);
+        const updateCardTilt = () => {
+            const viewportRect = carousel.getBoundingClientRect();
+            const viewportCenterX = viewportRect.left + viewportRect.width / 2;
 
-            const r = dir * maxRot;
-            const x = dir * maxX;
-            const s = 1 - (1 - minScale) * t;
-            const o = 1 - (1 - minOpacity) * t;
+            slideElements.forEach((slide, index) => {
+                const card = cardElements[index];
 
-            return { r, x, s, o };
-        });
+                if (!card) {
+                    return;
+                }
+
+                const rect = slide.getBoundingClientRect();
+                const slideCenterX = rect.left + rect.width / 2;
+                const distance = rect.width > 0 ? (slideCenterX - viewportCenterX) / rect.width : 0;
+                const direction = gsap.utils.clamp(-1, 1, distance);
+                const offset = Math.abs(direction);
+
+                gsap.set(card, {
+                    opacity: gsap.utils.interpolate(1, minOpacity, offset),
+                    rotate: direction * maxRotation,
+                    scale: gsap.utils.interpolate(1, minScale, offset),
+                    transformOrigin: "50% 80%",
+                });
+            });
+        };
+
+        if (slideElements.length === 1) {
+            updateCardTilt();
+            return;
+        }
+
+        loop = horizontalLoop(
+            slideElements,
+            {
+                center: true,
+                draggable: true,
+                onChange: (_, index) => {
+                    currentIndex = index;
+                },
+                paused: true,
+            },
+            updateCardTilt,
+        );
+
+        loop?.toIndex(0, { duration: 0 });
+        updateCardTilt();
+
+        const handleResize = () => updateCardTilt();
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+            loop?.kill();
+            loop?.draggable?.kill();
+            loop = undefined;
+        };
+    });
+
+    function goTo(index: number) {
+        if (isSpinning) {
+            return;
+        }
+
+        loop?.toIndex(index, snapTween);
     }
-
-    const getNearestSnap = (api: EmblaCarouselType) => {
-        const snaps = api.scrollSnapList();
-        const progress = api.scrollProgress();
-        let nearestIndex = 0;
-        let minDiff = Infinity;
-        snaps.forEach((snap, index) => {
-            const diff = Math.abs(snap - progress);
-            if (diff < minDiff) {
-                minDiff = diff;
-                nearestIndex = index;
-            }
-        });
-        return nearestIndex;
-    };
-
-    const snapToNearest = (api: EmblaCarouselType) => {
-        activeSnap = api.selectedScrollSnap();
-        setTimeout(() => {
-            const target = getNearestSnap(api);
-            isSnapping = true;
-            api.scrollTo(target);
-            isSnapping = false;
-        }, 500);
-    };
-
-    function setupCarousel(embla: EmblaCarouselType) {
-        const viewport = embla.rootNode();
-        const viewportRect = viewport.getBoundingClientRect();
-        viewportCenterX = viewportRect.left + viewportRect.width / 2;
-
-        setupSnaps(embla);
-        updateTween(embla);
-    }
-
-    function onScrollEvent(api: EmblaCarouselType) {
-        updateTween(api);
-    }
-
-    function onSelectEvent(api: EmblaCarouselType) {
-        isSnapping ? (isSnapping = false) : snapToNearest(api);
-        updateTween(api);
-    }
-
-    const onInit = (event: CustomEvent<EmblaCarouselType>) => {
-        emblaApi = event.detail;
-
-        setupCarousel(emblaApi);
-
-        emblaApi.on("reInit", () => {
-            setupCarousel(emblaApi!);
-        });
-
-        emblaApi.on("scroll", () => onScrollEvent(emblaApi!));
-        emblaApi.on("select", () => onSelectEvent(emblaApi!));
-    };
 </script>
 
-<div class="w-full" use:useEmblaCarousel={{ options, plugins }} onemblaInit={onInit}>
-    <div class="flex touch-pan-y touch-pinch-zoom gap-5">
-        {#each gamesList as game, index}
+<div class="-mx-5 overflow-hidden">
+    <div
+        bind:this={carousel}
+        aria-label="Game carousel"
+        class={[
+            "flex items-center gap-5 overflow-x-auto px-5 py-3 [-ms-overflow-style:none] [scrollbar-width:none]",
+            games.length === 1 && "justify-center",
+        ]}>
+        {#each games as game, index (game.link + game.name)}
             <a
+                bind:this={slideElements[index]}
                 href={game.link}
-                class="slide aspect-2/3 w-52 min-w-0 shrink-0 grow-0 basis-[70%] rounded-2xl"
-                style="
-                            --r: {slideStyles[index]?.r ?? 0}deg;
-                            --x: {slideStyles[index]?.x ?? 0}px;
-                            --s: {slideStyles[index]?.s ?? 1};
-                            --o: {slideStyles[index]?.o ?? 1};
-                        ">
-                <img
-                    src={game.cover}
-                    alt={game.name}
-                    class="h-full w-full rounded-2xl object-cover" />
+                aria-current={currentIndex === index ? "true" : undefined}
+                class={[
+                    "block shrink-0",
+                    games.length === 1
+                        ? "max-w-52 basis-[70%]"
+                        : "basis-[70%] sm:basis-[48%] lg:basis-88",
+                ]}
+                onclick={(event) => {
+                    if (game.link === "#") {
+                        event.preventDefault();
+                        if (games.length > 1) {
+                            goTo(index);
+                        }
+                        return;
+                    }
+
+                    if (games.length > 1 && currentIndex !== index) {
+                        event.preventDefault();
+                        goTo(index);
+                    }
+                }}>
+                <div
+                    bind:this={cardElements[index]}
+                    class="relative aspect-2/3 overflow-hidden rounded-2xl bg-white will-change-transform">
+                    <img
+                        alt={game.name}
+                        class="game-cover size-full object-cover"
+                        src={game.cover}
+                        data-flip-id={`game-${game.name}`} />
+
+                    <div
+                        class="via-transparent# absolute inset-0 bg-linear-to-b from-transparent
+                         to-black/85 to-95%">
+                    </div>
+
+                    <div
+                        class="absolute bottom-0 left-0 flex h-fit w-full flex-col gap-1.5 px-5 pb-8 text-white">
+                        <p class="text-3xl font-bold uppercase">{game.name}</p>
+
+                        <div class="flex flex-row gap-5">
+                            <div class="flex flex-row gap-1">
+                                <UsersIcon size={20} />
+                                <p class="text-sm font-medium">2+</p>
+                            </div>
+
+                            <div class="flex flex-row gap-1">
+                                <TimerIcon size={20} />
+                                <p class="text-sm font-medium">5m</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </a>
         {/each}
     </div>
+
+    {#if games.length > 1}
+        <div class="mt-3 flex justify-center gap-2">
+            {#each games as game, index (game.link + game.name)}
+                <button
+                    aria-label={`Go to ${game.name}`}
+                    class={[
+                        "rounded-full transition-all duration-200",
+                        currentIndex === index ? "w-5 bg-primary" : "size-2 bg-contrast/30",
+                    ]}
+                    onclick={() => {
+                        goTo(index);
+                    }}
+                    type="button"></button>
+            {/each}
+        </div>
+    {/if}
 </div>
-
-<!-- Dots -->
-<div class="mx-auto flex flex-row items-center gap-2">
-    {#each scrollSnaps as _, index (index)}
-        <button
-            aria-label="Button Index {index}"
-            class="rounded-full"
-            class:bg-orange-500={index === activeSnap}
-            class:bg-black={index !== activeSnap}
-            class:size-3={index === activeSnap}
-            class:size-2={index !== activeSnap}
-            onclick={() => snapToSlide(index)}></button>
-    {/each}
-</div>
-
-<style>
-    .slide {
-        transform: translateX(var(--x)) rotate(var(--r)) scale(var(--s));
-        opacity: var(--o);
-        transform-origin: 50% 80%;
-        will-change: transform, opacity;
-
-        transition:
-            transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-            opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-</style>

@@ -2,6 +2,9 @@
     import { page } from "$app/state";
     import { m } from "$lib/paraglide/messages";
     import { BellIcon, HouseIcon, MenuIcon, TrophyIcon } from "@lucide/svelte";
+
+    import { stopOverscroll } from "$lib/helper/gsap.helper";
+    import { onMount } from "svelte";
     import "../app.css";
 
     let { children } = $props();
@@ -32,6 +35,10 @@
     function isCurrentRoute(href: string) {
         return page.route.id === href;
     }
+
+    onMount(() => {
+        stopOverscroll(undefined);
+    });
 </script>
 
 <div class="h-dvh w-dvw overflow-x-clip px-5 pt-10 md:mx-auto md:max-w-2xl">
@@ -42,7 +49,7 @@
             <div class="flex flex-row items-start justify-between">
                 <div class="flex flex-col">
                     <p class="text-5xl font-bold">Asobi</p>
-                    <p class="text-3xl font-medium italic">
+                    <p class="text-3xl font-semibold text-primary italic">
                         {#if isCurrentRoute("/")}
                             {m.sad_active_mole_bask()}
                         {:else if isCurrentRoute("/leaderboard")}
