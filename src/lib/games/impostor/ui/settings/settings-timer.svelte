@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { formatTimeSmall } from "$lib/helper/format.helper";
     import Dialog from "$lib/ui/dialog.svelte";
     import OptionRow from "$lib/ui/option-row.svelte";
     import ToggleRow from "$lib/ui/toggle-row.svelte";
@@ -9,16 +10,12 @@
         impostorSettingsState,
     } from "../../states/impostor.state.svelte";
 
-    export function formatImpostorTimer(seconds: number) {
-        return seconds < 60 || seconds % 60 !== 0 ? `${seconds}s` : `${seconds / 60} min`;
-    }
-
     let label = $derived.by(() => {
         if (!impostorSettingsState.timerConfig.enabled) {
             return "Aus";
         }
 
-        return formatImpostorTimer(impostorSettingsState.timerConfig.durationSeconds);
+        return formatTimeSmall(impostorSettingsState.timerConfig.durationSeconds);
     });
 </script>
 
@@ -42,7 +39,7 @@
             <div class="flex flex-col gap-2">
                 {#each IMPOSTOR_TIMER_OPTIONS as timerOption, index (timerOption)}
                     <OptionRow
-                        label={formatImpostorTimer(timerOption)}
+                        label={formatTimeSmall(timerOption)}
                         selected={timerOption === impostorSettingsState.timerConfig.durationSeconds}
                         onclick={() =>
                             (impostorSettingsState.timerConfig.durationSeconds = timerOption)} />

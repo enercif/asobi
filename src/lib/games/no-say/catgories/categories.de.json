@@ -1,0 +1,320 @@
+[
+    {
+        "id": "1",
+        "name": "Tiere",
+        "description": "Bekannte Tiere aus aller Welt",
+        "words": [
+            {
+                "word": "Hund",
+                "taboos": ["Bellt", "Vier Beine", "Haustier"]
+            },
+            {
+                "word": "Katze",
+                "taboos": ["Miau", "Schnurrt", "Haustier"]
+            },
+            {
+                "word": "Elefant",
+                "taboos": ["Rüssel", "Groß", "Savanne"]
+            },
+            {
+                "word": "Löwe",
+                "taboos": ["Mähne", "Raubtier", "Savanne"]
+            },
+            {
+                "word": "Giraffe",
+                "taboos": ["Langer Hals", "Gefleckt", "Afrika"]
+            },
+            {
+                "word": "Delfin",
+                "taboos": ["Meer", "Intelligent", "Springt"]
+            },
+            {
+                "word": "Pinguin",
+                "taboos": ["Schwarzweiß", "Watschelt", "Antarktis"]
+            },
+            {
+                "word": "Känguru",
+                "taboos": ["Beutel", "Springt", "Australien"]
+            },
+            {
+                "word": "Eule",
+                "taboos": ["Nacht", "Große Augen", "Fliegt"]
+            },
+            {
+                "word": "Fuchs",
+                "taboos": ["Rotbraun", "Schlau", "Wald"]
+            },
+            {
+                "word": "Schildkröte",
+                "taboos": ["Panzer", "Langsam", "Alt"]
+            },
+            {
+                "word": "Zebra",
+                "taboos": ["Streifen", "Savanne", "Pferdeartig"]
+            },
+            {
+                "word": "Bär",
+                "taboos": ["Winterschlaf", "Groß", "Tatzen"]
+            },
+            {
+                "word": "Hase",
+                "taboos": ["Lange Ohren", "Hoppelt", "Karotte"]
+            },
+            {
+                "word": "Schmetterling",
+                "taboos": ["Bunte Flügel", "Leicht", "Insekt"]
+            },
+            {
+                "word": "Krokodil",
+                "taboos": ["Schuppen", "Fluss", "Gefährlich"]
+            },
+            {
+                "word": "Panda",
+                "taboos": ["Schwarzweiß", "Bambus", "China"]
+            },
+            {
+                "word": "Hai",
+                "taboos": ["Flosse", "Meer", "Raubfisch"]
+            },
+
+            {
+                "word": "Otter",
+                "taboos": ["Fluss", "Verspielt", "Schwimmt"]
+            },
+            {
+                "word": "Chamäleon",
+                "taboos": ["Farbwechsel", "Echse", "Zunge"]
+            },
+            {
+                "word": "Pfau",
+                "taboos": ["Bunt", "Federrad", "Stolz"]
+            },
+            {
+                "word": "Biene",
+                "taboos": ["Summt", "Honig", "Stachel"]
+            },
+            {
+                "word": "Gorilla",
+                "taboos": ["Affenartig", "Stark", "Dschungel"]
+            },
+            {
+                "word": "Wal",
+                "taboos": ["Riesig", "Ozean", "Bläst"]
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "Essen",
+        "description": "Beliebte Gerichte und Lebensmittel",
+        "words": [
+            {
+                "word": "Pizza",
+                "taboos": ["Italienisch", "Käse", "Teig"]
+            },
+            {
+                "word": "Burger",
+                "taboos": ["Fast Food", "Brötchen", "Patty"]
+            },
+            {
+                "word": "Sushi",
+                "taboos": ["Japanisch", "Reis", "Roh"]
+            },
+            {
+                "word": "Pasta",
+                "taboos": ["Nudeln", "Italienisch", "Soße"]
+            },
+            {
+                "word": "Tacos",
+                "taboos": ["Mexikanisch", "Gefüllt", "Maistortilla"]
+            },
+            {
+                "word": "Croissant",
+                "taboos": ["Französisch", "Blättrig", "Frühstück"]
+            },
+            {
+                "word": "Döner",
+                "taboos": ["Fladenbrot", "Spieß", "Salat"]
+            },
+            {
+                "word": "Paella",
+                "taboos": ["Spanisch", "Pfanne", "Reis"]
+            },
+            {
+                "word": "Ramen",
+                "taboos": ["Japanisch", "Brühe", "Nudelschüssel"]
+            },
+            {
+                "word": "Lasagne",
+                "taboos": ["Geschichtet", "Ofen", "Nudeln"]
+            },
+            {
+                "word": "Currywurst",
+                "taboos": ["Deutsch", "Soße", "Imbiss"]
+            },
+            {
+                "word": "Falafel",
+                "taboos": ["Kichererbse", "Frittiert", "Vegetarisch"]
+            },
+            {
+                "word": "Risotto",
+                "taboos": ["Cremig", "Reis", "Italienisch"]
+            },
+            {
+                "word": "Burrito",
+                "taboos": ["Gerollt", "Mexikanisch", "Gefüllt"]
+            },
+            {
+                "word": "Pfannkuchen",
+                "taboos": ["Süß", "Flach", "Pfanne"]
+            },
+            {
+                "word": "Apfelstrudel",
+                "taboos": ["Apfel", "Ofen", "Dessert"]
+            },
+            {
+                "word": "Gulasch",
+                "taboos": ["Eintopf", "Paprika", "Ungarisch"]
+            },
+            {
+                "word": "Quiche",
+                "taboos": ["Herzhaft", "Ofen", "Eier"]
+            },
+            {
+                "word": "Müsli",
+                "taboos": ["Frühstück", "Flocken", "Schüssel"]
+            },
+            {
+                "word": "Waffel",
+                "taboos": ["Süß", "Karomuster", "Gebäck"]
+            },
+            {
+                "word": "Knödel",
+                "taboos": ["Rund", "Beilage", "Sättigend"]
+            },
+            {
+                "word": "Bratwurst",
+                "taboos": ["Grill", "Deutsch", "Wurst"]
+            },
+            {
+                "word": "Gazpacho",
+                "taboos": ["Kalt", "Tomate", "Spanisch"]
+            },
+            {
+                "word": "Nudelsalat",
+                "taboos": ["Kalt", "Party", "Schüssel"]
+            },
+            {
+                "word": "Käsespätzle",
+                "taboos": ["Käse", "Pfanne", "Alpen"]
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "name": "Berufe",
+        "description": "Berufe, die man schnell erraten kann",
+        "words": [
+            {
+                "word": "Arzt",
+                "taboos": ["Krankenhaus", "Diagnose", "Weiße Kittel"]
+            },
+            {
+                "word": "Bäcker",
+                "taboos": ["Früh auf", "Ofen", "Brot"]
+            },
+            {
+                "word": "Gärtner",
+                "taboos": ["Pflanzen", "Erde", "Gießkanne"]
+            },
+            {
+                "word": "Pilot",
+                "taboos": ["Cockpit", "Flugzeug", "Wolken"]
+            },
+            {
+                "word": "Polizist",
+                "taboos": ["Uniform", "Gesetz", "Streife"]
+            },
+            {
+                "word": "Schauspieler",
+                "taboos": ["Bühne", "Rolle", "Kamera"]
+            },
+            {
+                "word": "Musiker",
+                "taboos": ["Melodie", "Auftritt", "Instrument"]
+            },
+            {
+                "word": "Fotograf",
+                "taboos": ["Kamera", "Bilder", "Objektiv"]
+            },
+            {
+                "word": "Kellner",
+                "taboos": ["Restaurant", "Serviert", "Tablett"]
+            },
+            {
+                "word": "Architekt",
+                "taboos": ["Gebäude", "Pläne", "Entwurf"]
+            },
+            {
+                "word": "Anwalt",
+                "taboos": ["Gericht", "Mandant", "Recht"]
+            },
+            {
+                "word": "Mechaniker",
+                "taboos": ["Werkstatt", "Motor", "Reparatur"]
+            },
+            {
+                "word": "Friseur",
+                "taboos": ["Schere", "Haare", "Salon"]
+            },
+            {
+                "word": "Journalist",
+                "taboos": ["Artikel", "Recherche", "Nachrichten"]
+            },
+            {
+                "word": "Koch",
+                "taboos": ["Küche", "Rezepte", "Topf"]
+            },
+            {
+                "word": "Schneider",
+                "taboos": ["Stoff", "Nadel", "Maßband"]
+            },
+            {
+                "word": "Zahnarzt",
+                "taboos": ["Bohrer", "Praxis", "Zähne"]
+            },
+            {
+                "word": "Programmierer",
+                "taboos": ["Code", "Computer", "Tastatur"]
+            },
+            {
+                "word": "Elektriker",
+                "taboos": ["Strom", "Kabel", "Sicherung"]
+            },
+            {
+                "word": "Tauchlehrer",
+                "taboos": ["Meer", "Flossen", "Unterwasser"]
+            },
+            {
+                "word": "Astronaut",
+                "taboos": ["Weltraum", "Helm", "Rakete"]
+            },
+            {
+                "word": "Bibliothekar",
+                "taboos": ["Bücher", "Leise", "Regale"]
+            },
+            {
+                "word": "Florist",
+                "taboos": ["Blumen", "Strauß", "Duft"]
+            },
+            {
+                "word": "Taxifahrer",
+                "taboos": ["Stadt", "Fahrgast", "Lenkrad"]
+            },
+            {
+                "word": "Detektiv",
+                "taboos": ["Spur", "Rätsel", "Lupe"]
+            }
+        ]
+    }
+]

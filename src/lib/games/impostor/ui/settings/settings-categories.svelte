@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { impostorCategoriesDE } from "$lib/games/impostor/categories";
+    import { impostorCategoriesDE } from "$lib/games/impostor/categories/categories";
 
     import Dialog from "$lib/ui/dialog.svelte";
     import { CircleDashedIcon } from "@lucide/svelte";

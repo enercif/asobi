@@ -33,12 +33,12 @@
                     <div class="flex flex-row gap-3">
                         <div class="flex flex-row gap-1">
                             <UsersIcon size={20} />
-                            <p class="text-sm font-medium">2+</p>
+                            <p class="text-sm font-medium">{game.playerCount}</p>
                         </div>
 
                         <div class="flex flex-row gap-1">
                             <TimerIcon size={20} />
-                            <p class="text-sm font-medium">5m</p>
+                            <p class="text-sm font-medium">{game.playtime}</p>
                         </div>
                     </div>
                 </div>

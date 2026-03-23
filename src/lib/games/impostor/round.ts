@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 import { getLocale } from "$lib/paraglide/runtime";
-import { allCategories } from "./categories";
+import { allImpostorCategories } from "./categories/categories";
 import { impostorGameState } from "./states/impostor.game.state.svelte";
 import { impostorSettingsState } from "./states/impostor.state.svelte";
 import type { ImpostorCategoryWord } from "./types/category";
@@ -53,10 +53,10 @@ function selectRandomWord(): ImpostorCategoryWord {
 
     switch (getLocale()) {
         case "de":
-            availableCategories = allCategories.de;
+            availableCategories = allImpostorCategories.de;
         case "en":
             //TODO: add english categories and set
-            availableCategories = allCategories.de;
+            availableCategories = allImpostorCategories.de;
     }
 
     const selectedCategoryIds = impostorSettingsState.selectedCategoryIds;

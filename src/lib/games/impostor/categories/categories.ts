@@ -1,7 +1,7 @@
+import type { ImpostorCategory } from "../types/category";
 import categoriesDE from "./categories.de.json";
-import type { ImpostorCategory } from "./types/category";
 
-export const allCategories = {
+export const allImpostorCategories = {
     de: categoriesDE,
 };
 
