@@ -30,12 +30,14 @@
             locked = false;
         }, 2000);
 
-        interval = setInterval(() => {
-            remainingTime--;
-            if (remainingTime <= 0) {
-                clearInterval(interval);
-            }
-        }, 1000);
+        if (timerConfig.enabled) {
+            interval = setInterval(() => {
+                remainingTime--;
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
     });
 
     onDestroy(() => {
