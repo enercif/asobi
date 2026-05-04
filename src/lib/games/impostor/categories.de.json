@@ -403,5 +403,68 @@
                 "hints": ["frühe Software", "Wandel", "Philanthropie"]
             }
         ]
+    },
+    {
+        "id": "5",
+        "name": "Filme & Serien",
+        "description": "Bekannte Filme und Serien mit indirekten Hinweisen",
+        "words": [
+            {
+                "word": "Inception",
+                "hints": ["Traumebenen", "Kreisel", "Zeitdehnung"]
+            },
+            {
+                "word": "Titanic",
+                "hints": ["Eisberg", "Klassentrennung", "Untergang"]
+            },
+            {
+                "word": "The Matrix",
+                "hints": ["Simulation", "Wahl", "Realität"]
+            },
+            {
+                "word": "Harry Potter",
+                "hints": ["Narbe", "Schule", "Zauberstab"]
+            },
+            {
+                "word": "Breaking Bad",
+                "hints": ["Chemie", "Wandel", "Doppelleben"]
+            },
+            {
+                "word": "Game of Thrones",
+                "hints": ["Machtspiele", "Drachen", "Intrigen"]
+            },
+            {
+                "word": "Joker",
+                "hints": ["Chaos", "Lachen", "Abstieg"]
+            },
+            {
+                "word": "Avatar",
+                "hints": ["Verbindung", "Natur", "fremde Welt"]
+            },
+            {
+                "word": "Stranger Things",
+                "hints": ["Parallelwelt", "Kinder", "Geheimnis"]
+            },
+            {
+                "word": "The Walking Dead",
+                "hints": ["Überleben", "Gruppe", "Verfall"]
+            },
+            {
+                "word": "Shutter Island",
+                "hints": ["Zweifel", "Realität", "Isolation"]
+            },
+            {
+                "word": "The Truman Show",
+                "hints": ["Beobachtung", "Scheinwelt", "Kontrolle"]
+            },
+            {
+                "word": "Squid Game",
+                "hints": ["Spiele", "Schulden", "Moral"]
+            },
+            {
+                "word": "Jurassic Park",
+                "hints": ["Wiederbelebung", "Kontrolle", "Chaos"]
+            }
+        ]
     }
 ]
