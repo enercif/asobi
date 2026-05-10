@@ -1,20 +1,23 @@
 <script lang="ts">
+    import { impostorPresetsState } from "$lib/games/impostor/states/impostor.presets.state.svelte";
+    import {
+        baseImpostorSettings,
+        impostorSettingsState,
+    } from "$lib/games/impostor/states/impostor.state.svelte";
     import Dialog from "$lib/ui/dialog.svelte";
     import OptionRow from "$lib/ui/option-row.svelte";
     import TriggerRow from "$lib/ui/trigger-row.svelte";
     import { Gamepad2 } from "@lucide/svelte";
-    import { impostorPresetsState } from "../../states/impostor.presets.state.svelte";
-    import { impostorSettingsState } from "../../states/impostor.state.svelte";
 
     function getLabelFromPlayers(players: string[]) {
-        players = players.filter((player) => player.trim() !== "");
+        players = players.filter((player) => player.trim() !== "").map((player) => player.trim());
 
         if (players.length === 0) {
             return "Leere Voreinstellung";
-        } else if (players.length <= 5) {
+        } else if (players.length < 5) {
             return players.join(", ");
         } else {
-            return `${players[0]} + ${players.length - 1}`;
+            return `${players.slice(0, 4).join(", ")} + ${players.length - 4}`;
         }
     }
 </script>
@@ -36,9 +39,17 @@
                     impostorSettingsState.current = preset;
                 }} />
 
-            {#if index + 1 !== impostorPresetsState.current.length}
-                <div class="mx-2 border-b border-contrast/35"></div>
-            {/if}
+            <div class="mx-2 border-b border-contrast/35"></div>
         {/each}
+        <OptionRow
+            label="Keine Voreinstellung"
+            selected={!impostorPresetsState.current.some(
+                (preset) =>
+                    JSON.stringify(preset.playerInputs) ===
+                    JSON.stringify(impostorSettingsState.current.playerInputs),
+            )}
+            onclick={() => {
+                impostorSettingsState.current = baseImpostorSettings;
+            }} />
     </div>
 </Dialog>
