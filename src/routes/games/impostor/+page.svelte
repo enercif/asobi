@@ -6,15 +6,25 @@
     import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
     import RevealPhase from "$lib/games/impostor/ui/reveal-phase.svelte";
     import SettingsPhase from "$lib/games/impostor/ui/settings-phase.svelte";
+    import { favouritesState } from "$lib/state/favourites.state.svelte";
     import Dialog from "$lib/ui/dialog.svelte";
-    import { BookmarkIcon, ChevronLeft, CircleQuestionMarkIcon } from "@lucide/svelte";
+    import { ChevronLeft, CircleQuestionMarkIcon, HeartIcon } from "@lucide/svelte";
 
-    let starred = $state(false);
+    let favourite = $state(favouritesState.current.includes("Impostor"));
     let phase = $state<ImpostorGamePhase>("setup");
 
     function startRevealFlow() {
         phase = "reveal";
         startRound();
+    }
+
+    function onFavouriteClick() {
+        favourite = !favourite;
+        if (favourite) {
+            favouritesState.current.push("Impostor");
+        } else {
+            favouritesState.current = favouritesState.current.filter((v) => v !== "Impostor");
+        }
     }
 
     function startDiscussionPhase() {
@@ -87,11 +97,11 @@
                 <button
                     class="flex size-12 items-center justify-center"
                     type="button"
-                    aria-label={starred ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}
-                    onclick={() => (starred = !starred)}>
-                    <BookmarkIcon
+                    aria-label={favourite ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}
+                    onclick={onFavouriteClick}>
+                    <HeartIcon
                         size={28}
-                        class={starred
+                        class={favourite
                             ? "fill-primary text-primary transition-all duration-150"
                             : "fill-none text-black transition-all duration-150"} />
                 </button>

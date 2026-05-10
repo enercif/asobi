@@ -1,5 +1,6 @@
 <script lang="ts">
     import { gamesList } from "$lib/games/gameslist";
+    import { favouritesState } from "$lib/state/favourites.state.svelte";
     import { globalSettings } from "$lib/state/settings.state.svelte";
     import type { ListStyle } from "$lib/types/settings.type";
     import GameGrid from "$lib/ui/game-grid.svelte";
@@ -30,7 +31,12 @@
 
     let searchQuery = $state("");
     let filteredGames = $derived(
-        gamesList.filter((game) => game.name.toLowerCase().includes(searchQuery.toLowerCase())),
+        gamesList.filter((game) => {
+            const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesFavorite = !showFavorites || favouritesState.current.includes(game.name);
+
+            return matchesSearch && matchesFavorite;
+        }),
     );
 
     function toggleListMode() {
