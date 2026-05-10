@@ -11,7 +11,9 @@
 
     let { children } = $props();
 
-    let visible = new PersistedState("splash", true);
+    let visible = new PersistedState("splash", true, {
+        storage: "session",
+    });
 
     onMount(() => {
         stopOverscroll(undefined);
