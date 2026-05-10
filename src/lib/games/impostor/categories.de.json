@@ -316,5 +316,155 @@
                 "hints": ["Spur", "Rätsel", "Lupe"]
             }
         ]
+    },
+    {
+        "id": "4",
+        "name": "Berühmte Persönlichkeiten",
+        "description": "Bekannte Persönlichkeiten mit indirekten Hinweisen",
+        "words": [
+            {
+                "word": "Albert Einstein",
+                "hints": ["Gedankenexperimente", "Lichtgeschwindigkeit", "Patentamt"]
+            },
+            {
+                "word": "Leonardo da Vinci",
+                "hints": ["Skizzenbücher", "Flugideen", "unvollendete Werke"]
+            },
+            {
+                "word": "Cleopatra",
+                "hints": ["Bündnisse", "Nil", "dramatisches Ende"]
+            },
+            {
+                "word": "Napoleon Bonaparte",
+                "hints": ["Insel", "Strategie", "Größenwahn"]
+            },
+            {
+                "word": "Marie Curie",
+                "hints": ["unsichtbare Strahlung", "Labor", "doppelte Auszeichnung"]
+            },
+            {
+                "word": "William Shakespeare",
+                "hints": ["Monologe", "maskierte Bühne", "tragische Paare"]
+            },
+            {
+                "word": "Elon Musk",
+                "hints": ["Marsvision", "Tweets", "private Raketen"]
+            },
+            {
+                "word": "Michael Jackson",
+                "hints": ["Handschuh", "Rückwärtsbewegung", "Rekorde"]
+            },
+            {
+                "word": "Frida Kahlo",
+                "hints": ["Dornen", "Spiegel", "Selbstinszenierung"]
+            },
+            {
+                "word": "Nelson Mandela",
+                "hints": ["lange Isolation", "Versöhnung", "Neubeginn"]
+            },
+            {
+                "word": "Steve Jobs",
+                "hints": ["schwarze Bühne", "Minimalismus", "one more thing"]
+            },
+            {
+                "word": "Cristiano Ronaldo",
+                "hints": ["Perfektion", "Sprungkraft", "Jubelpose"]
+            },
+            {
+                "word": "Marilyn Monroe",
+                "hints": ["fließender Stoff", "Blitzlicht", "Mythos"]
+            },
+            {
+                "word": "Walt Disney",
+                "hints": ["Maus", "Fantasiewelten", "Imperium"]
+            },
+            {
+                "word": "Nikola Tesla",
+                "hints": ["Blitze", "Visionen", "Rivalität"]
+            },
+            {
+                "word": "Barack Obama",
+                "hints": ["Hoffnung", "Redekunst", "historischer Moment"]
+            },
+            {
+                "word": "Taylor Swift",
+                "hints": ["Perspektivwechsel", "versteckte Botschaften", "Neuaufnahmen"]
+            },
+            {
+                "word": "Lionel Messi",
+                "hints": ["Leichtigkeit", "enge Räume", "leiser Triumph"]
+            },
+            {
+                "word": "Oprah Winfrey",
+                "hints": ["Gespräche", "Einfluss", "Empfehlungen"]
+            },
+            {
+                "word": "Bill Gates",
+                "hints": ["frühe Software", "Wandel", "Philanthropie"]
+            }
+        ]
+    },
+    {
+        "id": "5",
+        "name": "Filme & Serien",
+        "description": "Bekannte Filme und Serien mit indirekten Hinweisen",
+        "words": [
+            {
+                "word": "Inception",
+                "hints": ["Traumebenen", "Kreisel", "Zeitdehnung"]
+            },
+            {
+                "word": "Titanic",
+                "hints": ["Eisberg", "Klassentrennung", "Untergang"]
+            },
+            {
+                "word": "The Matrix",
+                "hints": ["Simulation", "Wahl", "Realität"]
+            },
+            {
+                "word": "Harry Potter",
+                "hints": ["Narbe", "Schule", "Zauberstab"]
+            },
+            {
+                "word": "Breaking Bad",
+                "hints": ["Chemie", "Wandel", "Doppelleben"]
+            },
+            {
+                "word": "Game of Thrones",
+                "hints": ["Machtspiele", "Drachen", "Intrigen"]
+            },
+            {
+                "word": "Joker",
+                "hints": ["Chaos", "Lachen", "Abstieg"]
+            },
+            {
+                "word": "Avatar",
+                "hints": ["Verbindung", "Natur", "fremde Welt"]
+            },
+            {
+                "word": "Stranger Things",
+                "hints": ["Parallelwelt", "Kinder", "Geheimnis"]
+            },
+            {
+                "word": "The Walking Dead",
+                "hints": ["Überleben", "Gruppe", "Verfall"]
+            },
+            {
+                "word": "Shutter Island",
+                "hints": ["Zweifel", "Realität", "Isolation"]
+            },
+            {
+                "word": "The Truman Show",
+                "hints": ["Beobachtung", "Scheinwelt", "Kontrolle"]
+            },
+            {
+                "word": "Squid Game",
+                "hints": ["Spiele", "Schulden", "Moral"]
+            },
+            {
+                "word": "Jurassic Park",
+                "hints": ["Wiederbelebung", "Kontrolle", "Chaos"]
+            }
+        ]
     }
 ]
