@@ -4,6 +4,7 @@
     import RouteSubtitle from "$lib/ui/route-subtitle.svelte";
 
     import { stopOverscroll } from "$lib/helper/gsap.helper";
+    import Splash from "$lib/ui/splash.svelte";
     import { onMount } from "svelte";
     import "../app.css";
 
@@ -13,6 +14,8 @@
         stopOverscroll(undefined);
     });
 </script>
+
+<Splash />
 
 <div class="h-dvh w-dvw overflow-x-clip px-5 pt-10 md:mx-auto md:max-w-2xl">
     {#if page.route.id?.includes("games")}
