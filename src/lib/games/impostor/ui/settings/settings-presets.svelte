@@ -20,6 +20,12 @@
             return `${players.slice(0, 4).join(", ")} + ${players.length - 4}`;
         }
     }
+
+    function onDeletePreset(index: number) {
+        impostorPresetsState.current = impostorPresetsState.current.filter(
+            (_, presetIndex) => presetIndex !== index,
+        );
+    }
 </script>
 
 <Dialog title="Voreinstellungen">
@@ -35,6 +41,7 @@
                 label={getLabelFromPlayers(preset.playerInputs)}
                 selected={JSON.stringify(preset.playerInputs) ===
                     JSON.stringify(impostorSettingsState.current.playerInputs)}
+                onDelete={() => onDeletePreset(index)}
                 onclick={() => {
                     impostorSettingsState.current = preset;
                 }} />

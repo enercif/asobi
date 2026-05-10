@@ -1,5 +1,6 @@
 <script lang="ts">
     import Dialog from "$lib/ui/dialog.svelte";
+    import InputRow from "$lib/ui/input-row.svelte";
     import TriggerRow from "$lib/ui/trigger-row.svelte";
     import { UserIcon } from "@lucide/svelte";
     import { getPlayerCount, impostorSettingsState } from "../../states/impostor.state.svelte";
@@ -32,6 +33,13 @@
             }
         }
     }
+
+    function onDelete(index: number) {
+        const nextInputs = [...impostorSettingsState.current.playerInputs];
+        nextInputs.splice(index, 1);
+
+        impostorSettingsState.current.playerInputs = nextInputs;
+    }
 </script>
 
 <Dialog title="Spieler">
@@ -42,13 +50,11 @@
     {/snippet}
 
     <div class="flex size-full max-h-125 flex-col gap-2 overflow-y-auto">
-        {#each impostorSettingsState.current.playerInputs as playerInput, index (index)}
-            <input
-                autocomplete="off"
-                spellcheck="false"
+        {#each impostorSettingsState.current.playerInputs as playerInput, index}
+            <InputRow
                 placeholder={`Spieler ${index + 1}`}
-                class="rounded-2xl px-4 py-1.5 text-base ring-1 ring-transparent outline-hidden transition animate-in animate-out fade-in zoom-in-50 sm:text-lg"
                 value={playerInput}
+                onDelete={() => onDelete(index)}
                 oninput={(event) => {
                     onPlayerInputChange(index, event.currentTarget.value);
                 }} />
