@@ -5,22 +5,26 @@
 
     import { stopOverscroll } from "$lib/helper/gsap.helper";
     import Splash from "$lib/ui/splash.svelte";
+    import { PersistedState } from "runed";
     import { onMount } from "svelte";
     import "../app.css";
 
     let { children } = $props();
 
-    let visible = $state(true);
+    let visible = new PersistedState("splash", true);
 
     onMount(() => {
         stopOverscroll(undefined);
-        setTimeout(() => {
-            visible = false;
-        }, 500);
+
+        if (visible.current) {
+            setTimeout(() => {
+                visible.current = false;
+            }, 500);
+        }
     });
 </script>
 
-<Splash {visible} />
+<Splash visible={visible.current} />
 
 <div class="h-dvh w-dvw overflow-x-clip px-5 pt-10 md:mx-auto md:max-w-2xl">
     {#if page.route.id?.includes("games")}
