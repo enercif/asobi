@@ -1,26 +1,23 @@
 import { PersistedState } from "runed";
-import type { ImpostorSettingsState } from "../types/settings";
+import type { ImpostorSettings } from "../types/settings";
 
 export const IMPOSTOR_MIN_PLAYERS = 3;
 export const IMPOSTOR_TIMER_OPTIONS = [30, 60, 120, 180, 300, 600] as const;
 
-export const impostorSettingsState = new PersistedState<ImpostorSettingsState>(
-    "impostor-settings",
-    {
-        playerInputs: [""],
-        impostorConfig: {
-            mode: "fixed",
-            count: 1,
-            randomRange: [1, 2],
-        },
-        selectedCategoryIds: ["1"],
-        hintsEnabled: false,
-        timerConfig: {
-            enabled: false,
-            durationSeconds: 60,
-        },
+export const impostorSettingsState = new PersistedState<ImpostorSettings>("impostor-settings", {
+    playerInputs: [""],
+    impostorConfig: {
+        mode: "fixed",
+        count: 1,
+        randomRange: [1, 2],
     },
-);
+    selectedCategoryIds: ["1"],
+    hintsEnabled: false,
+    timerConfig: {
+        enabled: false,
+        durationSeconds: 60,
+    },
+});
 
 export function getPlayerCount() {
     return impostorSettingsState.current.playerInputs.length - 1;

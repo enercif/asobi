@@ -17,18 +17,18 @@ export function startRound() {
 
 function mapPlayerInputsToPlayers(): ImpostorPlayer[] {
     if (dev) {
-        return impostorSettingsState.playerInputs
+        return impostorSettingsState.current.playerInputs
             .filter((player) => player.trim() !== "")
             .map((name) => ({ id: `${name}-${Math.random()}`, name, role: "civilian" }));
     } else {
-        return impostorSettingsState.playerInputs
+        return impostorSettingsState.current.playerInputs
             .filter((player) => player.trim() !== "")
             .map((name) => ({ id: crypto.randomUUID(), name, role: "civilian" }));
     }
 }
 
 function randomizeImpostorRoles(players: ImpostorPlayer[]): ImpostorPlayer[] {
-    const config = impostorSettingsState.impostorConfig;
+    const config = impostorSettingsState.current.impostorConfig;
 
     const impostorCount =
         config.mode === "fixed" ? config.count : getRandomImpostorCount(config.randomRange);
@@ -59,7 +59,7 @@ function selectRandomWord(): ImpostorCategoryWord {
             availableCategories = allCategories.de;
     }
 
-    const selectedCategoryIds = impostorSettingsState.selectedCategoryIds;
+    const selectedCategoryIds = impostorSettingsState.current.selectedCategoryIds;
     const filteredCategories = availableCategories.filter((word) =>
         selectedCategoryIds.includes(word.id),
     );

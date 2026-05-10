@@ -9,7 +9,7 @@ export type ImpostorTimerConfig = {
     durationSeconds: number;
 };
 
-export type ImpostorSettingsState = {
+export type ImpostorSettings = {
     playerInputs: string[];
     selectedCategoryIds: string[];
     impostorConfig: ImpostorCountConfig;

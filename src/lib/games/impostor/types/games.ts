@@ -10,7 +10,7 @@ export type ImpostorPlayer = {
 
 export type ImpostorRole = "civilian" | "impostor";
 
-export type ImpostorGameState = {
+export type ImpostorGame = {
     players: ImpostorPlayer[];
     selectedWords: ImpostorCategoryWord;
     startingPlayerName: string;

@@ -1,6 +1,6 @@
-import type { ImpostorGameState } from "../types/games";
+import type { ImpostorGame } from "../types/games";
 
-export const impostorGameState = $state<ImpostorGameState>({
+export const impostorGameState = $state<ImpostorGame>({
     players: [],
     selectedWords: { word: "", hints: [] },
     startingPlayerName: "",

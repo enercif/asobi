@@ -2,10 +2,12 @@
     import { SearchIcon } from "@lucide/svelte";
 
     import ToggleRow from "$lib/ui/toggle-row.svelte";
+    import { impostorPresetsState } from "../states/impostor.presets.state.svelte";
     import { getValidationErrors, impostorSettingsState } from "../states/impostor.state.svelte";
     import SettingsCategories from "./settings/settings-categories.svelte";
     import SettingsImpostors from "./settings/settings-impostors.svelte";
     import SettingsPlayers from "./settings/settings-players.svelte";
+    import SettingsPresets from "./settings/settings-presets.svelte";
     import SettingsTimer from "./settings/settings-timer.svelte";
 
     type Props = {
@@ -15,7 +17,14 @@
     let { onNextPhase }: Props = $props();
 </script>
 
-<div class="mt-10 flex h-full flex-col gap-6">
+<div class="mt-5 flex h-full flex-col gap-6">
+    {#if impostorPresetsState.current.length > 0}
+        <div
+            class="flex w-full flex-col overflow-hidden rounded-3xl bg-white text-xl shadow-sm ring-1 ring-black/5">
+            <SettingsPresets />
+        </div>
+    {/if}
+
     <div
         class="flex w-full flex-col overflow-hidden rounded-3xl bg-white text-xl shadow-sm ring-1 ring-black/5">
         <SettingsPlayers />

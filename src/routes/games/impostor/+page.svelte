@@ -1,6 +1,8 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { startRound } from "$lib/games/impostor/round";
+    import { impostorPresetsState } from "$lib/games/impostor/states/impostor.presets.state.svelte";
+    import { impostorSettingsState } from "$lib/games/impostor/states/impostor.state.svelte";
     import type { ImpostorGamePhase } from "$lib/games/impostor/types/games";
     import DiscussionPhase from "$lib/games/impostor/ui/discussion-phase.svelte";
     import ResultsPhase from "$lib/games/impostor/ui/results-phase.svelte";
@@ -15,6 +17,17 @@
 
     function startRevealFlow() {
         phase = "reveal";
+        let currentIndex = impostorPresetsState.current.findIndex(
+            (preset) =>
+                JSON.stringify(preset.playerInputs) ===
+                JSON.stringify(impostorSettingsState.current.playerInputs),
+        );
+        if (currentIndex === -1) {
+            impostorPresetsState.current.push(impostorSettingsState.current);
+        } else {
+            impostorPresetsState.current[currentIndex] = impostorSettingsState.current;
+        }
+
         startRound();
     }
 
