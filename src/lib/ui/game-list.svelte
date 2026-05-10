@@ -151,12 +151,7 @@
                 data-slide
                 href={game.link}
                 aria-current={currentIndex === index ? "true" : undefined}
-                class={[
-                    "block shrink-0",
-                    games.length === 1
-                        ? "max-w-52 basis-[70%]"
-                        : "basis-[70%] sm:basis-[48%] lg:basis-88",
-                ]}
+                class={["block shrink-0 basis-[70%] sm:basis-[48%] lg:basis-88"]}
                 onclick={(event) => {
                     if (game.link === "#") {
                         event.preventDefault();
