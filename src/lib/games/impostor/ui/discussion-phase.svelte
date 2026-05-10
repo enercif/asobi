@@ -10,7 +10,7 @@
 
     let { onNextPhase }: Props = $props();
 
-    let timerConfig = $derived(impostorSettingsState.timerConfig);
+    let timerConfig = $derived(impostorSettingsState.current.timerConfig);
     let remainingTime = $derived(timerConfig.durationSeconds);
     let progress = $derived(getProgress());
 

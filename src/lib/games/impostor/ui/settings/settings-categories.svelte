@@ -9,16 +9,18 @@
     import { impostorSettingsState } from "../../states/impostor.state.svelte";
 
     function toggleCategory(id: string) {
-        if (impostorSettingsState.selectedCategoryIds.includes(id)) {
-            if (impostorSettingsState.selectedCategoryIds.length === 1) {
+        if (impostorSettingsState.current.selectedCategoryIds.includes(id)) {
+            if (impostorSettingsState.current.selectedCategoryIds.length === 1) {
                 // prevent deselecting the last category
                 return;
             }
-            impostorSettingsState.selectedCategoryIds =
-                impostorSettingsState.selectedCategoryIds.filter((categoryId) => categoryId !== id);
+            impostorSettingsState.current.selectedCategoryIds =
+                impostorSettingsState.current.selectedCategoryIds.filter(
+                    (categoryId) => categoryId !== id,
+                );
         } else {
-            impostorSettingsState.selectedCategoryIds = [
-                ...impostorSettingsState.selectedCategoryIds,
+            impostorSettingsState.current.selectedCategoryIds = [
+                ...impostorSettingsState.current.selectedCategoryIds,
                 id,
             ];
         }
@@ -29,7 +31,7 @@
     {#snippet trigger()}
         <TriggerRow
             label="Kategorien"
-            value={`${impostorSettingsState.selectedCategoryIds.length} / ${impostorCategoriesDE.length}`}>
+            value={`${impostorSettingsState.current.selectedCategoryIds.length} / ${impostorCategoriesDE.length}`}>
             <CircleDashedIcon size={28} />
         </TriggerRow>
     {/snippet}
@@ -39,7 +41,9 @@
             <OptionRow
                 label={impostorCategory.name}
                 description={impostorCategory.description}
-                selected={impostorSettingsState.selectedCategoryIds.includes(impostorCategory.id)}
+                selected={impostorSettingsState.current.selectedCategoryIds.includes(
+                    impostorCategory.id,
+                )}
                 onclick={() => toggleCategory(impostorCategory.id)} />
 
             {#if index !== impostorCategoriesDE.length - 1}

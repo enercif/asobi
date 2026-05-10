@@ -14,11 +14,11 @@
     }
 
     let label = $derived.by(() => {
-        if (!impostorSettingsState.timerConfig.enabled) {
+        if (!impostorSettingsState.current.timerConfig.enabled) {
             return "Aus";
         }
 
-        return formatImpostorTimer(impostorSettingsState.timerConfig.durationSeconds);
+        return formatImpostorTimer(impostorSettingsState.current.timerConfig.durationSeconds);
     });
 </script>
 
@@ -31,21 +31,23 @@
 
     <div class="flex flex-col gap-3">
         <ToggleRow
-            bind:checked={impostorSettingsState.timerConfig.enabled}
+            bind:checked={impostorSettingsState.current.timerConfig.enabled}
             label="Zeitlimit aktivieren">
             <TimerIcon size={28} />
         </ToggleRow>
 
-        {#if impostorSettingsState.timerConfig.enabled}
+        {#if impostorSettingsState.current.timerConfig.enabled}
             <div class="mx-2 border-b border-contrast/35"></div>
 
             <div class="flex flex-col gap-2">
                 {#each IMPOSTOR_TIMER_OPTIONS as timerOption, index (timerOption)}
                     <OptionRow
                         label={formatImpostorTimer(timerOption)}
-                        selected={timerOption === impostorSettingsState.timerConfig.durationSeconds}
+                        selected={timerOption ===
+                            impostorSettingsState.current.timerConfig.durationSeconds}
                         onclick={() =>
-                            (impostorSettingsState.timerConfig.durationSeconds = timerOption)} />
+                            (impostorSettingsState.current.timerConfig.durationSeconds =
+                                timerOption)} />
 
                     {#if index !== IMPOSTOR_TIMER_OPTIONS.length - 1}
                         <div class="mx-2 border-b border-contrast/35"></div>

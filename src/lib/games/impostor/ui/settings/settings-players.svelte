@@ -5,7 +5,7 @@
     import { getPlayerCount, impostorSettingsState } from "../../states/impostor.state.svelte";
 
     function onPlayerInputChange(index: number, value: string) {
-        const nextInputs = [...impostorSettingsState.playerInputs];
+        const nextInputs = [...impostorSettingsState.current.playerInputs];
         nextInputs[index] = value;
 
         const visibleInputs = nextInputs.filter((name, inputIndex) => {
@@ -14,21 +14,21 @@
             return isLastInput || name.trim() !== "";
         });
 
-        impostorSettingsState.playerInputs =
+        impostorSettingsState.current.playerInputs =
             visibleInputs.at(-1)?.trim() === "" ? visibleInputs : [...visibleInputs, ""];
 
         const playerCount = getPlayerCount();
 
         if (playerCount > 3) {
-            if (playerCount <= impostorSettingsState.impostorConfig.count) {
-                impostorSettingsState.impostorConfig.count = playerCount - 1;
+            if (playerCount <= impostorSettingsState.current.impostorConfig.count) {
+                impostorSettingsState.current.impostorConfig.count = playerCount - 1;
             }
-            if (playerCount <= impostorSettingsState.impostorConfig.randomRange[1]) {
-                impostorSettingsState.impostorConfig.randomRange[1] = playerCount - 1;
+            if (playerCount <= impostorSettingsState.current.impostorConfig.randomRange[1]) {
+                impostorSettingsState.current.impostorConfig.randomRange[1] = playerCount - 1;
             }
 
-            if (playerCount < impostorSettingsState.impostorConfig.randomRange[0]) {
-                impostorSettingsState.impostorConfig.randomRange[0] = playerCount - 2;
+            if (playerCount < impostorSettingsState.current.impostorConfig.randomRange[0]) {
+                impostorSettingsState.current.impostorConfig.randomRange[0] = playerCount - 2;
             }
         }
     }
@@ -42,7 +42,7 @@
     {/snippet}
 
     <div class="flex size-full max-h-125 flex-col gap-2 overflow-y-auto">
-        {#each impostorSettingsState.playerInputs as playerInput, index (index)}
+        {#each impostorSettingsState.current.playerInputs as playerInput, index (index)}
             <input
                 autocomplete="off"
                 spellcheck="false"
@@ -53,7 +53,7 @@
                     onPlayerInputChange(index, event.currentTarget.value);
                 }} />
 
-            {#if index + 1 !== impostorSettingsState.playerInputs.length}
+            {#if index + 1 !== impostorSettingsState.current.playerInputs.length}
                 <div class="mx-2 border-b border-contrast/35"></div>
             {/if}
         {/each}

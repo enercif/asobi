@@ -12,28 +12,28 @@
     } from "../../states/impostor.state.svelte";
 
     let hasMinPlayers = $derived(
-        impostorSettingsState.playerInputs.length - 1 >= IMPOSTOR_MIN_PLAYERS,
+        impostorSettingsState.current.playerInputs.length - 1 >= IMPOSTOR_MIN_PLAYERS,
     );
 
     let label = $derived.by(() => {
         if (!hasMinPlayers) {
             return "-";
-        } else if (impostorSettingsState.impostorConfig.mode === "random") {
+        } else if (impostorSettingsState.current.impostorConfig.mode === "random") {
             if (
-                impostorSettingsState.impostorConfig.randomRange[0] ===
-                impostorSettingsState.impostorConfig.randomRange[1]
+                impostorSettingsState.current.impostorConfig.randomRange[0] ===
+                impostorSettingsState.current.impostorConfig.randomRange[1]
             ) {
-                return `${impostorSettingsState.impostorConfig.randomRange[0]}`;
+                return `${impostorSettingsState.current.impostorConfig.randomRange[0]}`;
             } else {
-                return `${impostorSettingsState.impostorConfig.randomRange[0]} - ${impostorSettingsState.impostorConfig.randomRange[1]}`;
+                return `${impostorSettingsState.current.impostorConfig.randomRange[0]} - ${impostorSettingsState.current.impostorConfig.randomRange[1]}`;
             }
         } else {
-            return `${impostorSettingsState.impostorConfig.count}`;
+            return `${impostorSettingsState.current.impostorConfig.count}`;
         }
     });
 
     function onCheckedChange(checked: boolean) {
-        impostorSettingsState.impostorConfig.mode = checked ? "random" : "fixed";
+        impostorSettingsState.current.impostorConfig.mode = checked ? "random" : "fixed";
     }
 </script>
 
@@ -47,7 +47,7 @@
     <div class="flex flex-col gap-1.5">
         {#if hasMinPlayers}
             <ToggleRow
-                checked={impostorSettingsState.impostorConfig.mode === "random"}
+                checked={impostorSettingsState.current.impostorConfig.mode === "random"}
                 label="Zufällige Anzahl"
                 {onCheckedChange}>
                 <HatGlassesIcon size={28} />
@@ -60,38 +60,39 @@
             <p class=" pb-1 text-center text-base leading-snug text-black/50">
                 Bitte zuerst mindestens {IMPOSTOR_MIN_PLAYERS} Spieler hinzufügen
             </p>
-        {:else if impostorSettingsState.impostorConfig.mode === "random"}
+        {:else if impostorSettingsState.current.impostorConfig.mode === "random"}
             <div class="mt-8 space-y-4 rounded-2xl px-4 py-4">
                 <div class="px-3">
                     <Slider
                         type="multiple"
-                        max={impostorSettingsState.playerInputs.length - 2}
+                        max={impostorSettingsState.current.playerInputs.length - 2}
                         min={1}
                         step={1}
-                        bind:value={impostorSettingsState.impostorConfig.randomRange} />
+                        bind:value={impostorSettingsState.current.impostorConfig.randomRange} />
                 </div>
 
-                {#if impostorSettingsState.impostorConfig.randomRange[0] === impostorSettingsState.impostorConfig.randomRange[1]}
+                {#if impostorSettingsState.current.impostorConfig.randomRange[0] === impostorSettingsState.current.impostorConfig.randomRange[1]}
                     <p class="text-center text-sm font-medium text-black/70">
-                        {impostorSettingsState.impostorConfig.randomRange[0]} Impostor
+                        {impostorSettingsState.current.impostorConfig.randomRange[0]} Impostor
                     </p>
                 {:else}
                     <p class="text-center text-sm font-medium text-black/70">
-                        {impostorSettingsState.impostorConfig.randomRange[0]} -
-                        {impostorSettingsState.impostorConfig.randomRange[1]} Impostor
+                        {impostorSettingsState.current.impostorConfig.randomRange[0]} -
+                        {impostorSettingsState.current.impostorConfig.randomRange[1]} Impostor
                     </p>
                 {/if}
             </div>
         {:else}
             <div class="flex max-h-100 min-h-0 w-full flex-col gap-1.5 overflow-y-auto">
-                {#each Array.from({ length: impostorSettingsState.playerInputs.length - 2 }, (_, index) => index + 1) as impostorCount, index (impostorCount)}
+                {#each Array.from({ length: impostorSettingsState.current.playerInputs.length - 2 }, (_, index) => index + 1) as impostorCount, index (impostorCount)}
                     <OptionRow
                         label={`${impostorCount} Impostor`}
-                        selected={impostorCount === impostorSettingsState.impostorConfig.count}
+                        selected={impostorCount ===
+                            impostorSettingsState.current.impostorConfig.count}
                         onclick={() =>
-                            (impostorSettingsState.impostorConfig.count = impostorCount)} />
+                            (impostorSettingsState.current.impostorConfig.count = impostorCount)} />
 
-                    {#if index !== impostorSettingsState.playerInputs.length - 3}
+                    {#if index !== impostorSettingsState.current.playerInputs.length - 3}
                         <div class="mx-1 border-b border-contrast/35"></div>
                     {/if}
                 {/each}

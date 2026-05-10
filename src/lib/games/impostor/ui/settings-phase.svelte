@@ -30,7 +30,7 @@
 
         <div class="mx-4 border-b border-contrast/35 sm:mx-6"></div>
 
-        <ToggleRow bind:checked={impostorSettingsState.hintsEnabled} label="Hinweise">
+        <ToggleRow bind:checked={impostorSettingsState.current.hintsEnabled} label="Hinweise">
             <SearchIcon size={28} />
         </ToggleRow>
 

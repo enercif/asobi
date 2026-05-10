@@ -76,7 +76,7 @@
                                     : "Impostor"}
                             </p>
 
-                            {#if impostorSettingsState.hintsEnabled && player.role === "impostor"}
+                            {#if impostorSettingsState.current.hintsEnabled && player.role === "impostor"}
                                 <p class="max-w-sm text-base font-semibold text-black">
                                     Hinweis: {randomHint}
                                 </p>
