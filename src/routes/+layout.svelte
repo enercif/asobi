@@ -10,12 +10,17 @@
 
     let { children } = $props();
 
+    let visible = $state(true);
+
     onMount(() => {
         stopOverscroll(undefined);
+        setTimeout(() => {
+            visible = false;
+        }, 500);
     });
 </script>
 
-<Splash />
+<Splash {visible} />
 
 <div class="h-dvh w-dvw overflow-x-clip px-5 pt-10 md:mx-auto md:max-w-2xl">
     {#if page.route.id?.includes("games")}

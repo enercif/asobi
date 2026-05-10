@@ -1,14 +1,11 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { fade } from "svelte/transition";
 
-    let visible = $state(true);
+    interface Props {
+        visible: boolean;
+    }
 
-    onMount(() => {
-        setTimeout(() => {
-            visible = false;
-        }, 500);
-    });
+    let { visible }: Props = $props();
 </script>
 
 {#if visible}
