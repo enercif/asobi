@@ -17,7 +17,7 @@
     let { games }: Props = $props();
 
     let carousel: HTMLDivElement;
-    let cardElements: HTMLDivElement[] = [];
+    let cardElements: HTMLDivElement[] = $state([]);
 
     let currentIndex = $state(0);
     let isSpinning = $state(false);
