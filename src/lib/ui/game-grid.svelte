@@ -7,13 +7,57 @@
     }
 
     let { games }: Props = $props();
+
+    let cardElements: HTMLDivElement[] = [];
+    let highlightedIndex = $state(-1);
+    let isSpinning = $state(false);
+
+    export async function spinToRandomGame(): Promise<number> {
+        if (isSpinning || games.length < 2) return -1;
+
+        isSpinning = true;
+
+        const targetIndex = Math.floor(Math.random() * games.length);
+        const start = highlightedIndex >= 0 ? highlightedIndex : 0;
+        const laps = 3;
+        const stepsToTarget = (targetIndex - start + games.length) % games.length || games.length;
+        const totalSteps = laps * games.length + stepsToTarget;
+
+        await new Promise<void>((resolve) => {
+            let step = 0;
+
+            const tick = () => {
+                step++;
+                highlightedIndex = (start + step) % games.length;
+
+                if (step >= totalSteps) {
+                    isSpinning = false;
+                    cardElements[targetIndex]?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                    resolve();
+                    return;
+                }
+
+                const progress = step / totalSteps;
+                const delay = 40 + 280 * Math.pow(progress, 2);
+                setTimeout(tick, delay);
+            };
+
+            setTimeout(tick, 40);
+        });
+
+        return targetIndex;
+    }
 </script>
 
 <div
     class="grid h-full min-h-0 grid-cols-2 gap-5 overflow-y-auto pb-30 [-ms-overflow-style:none] [scrollbar-width:none] md:grid-cols-3 lg:grid-cols-4">
-    {#each games as game (game.link + game.name)}
+    {#each games as game, index (game.link + game.name)}
         <a href={game.link}>
             <div
+                bind:this={cardElements[index]}
                 class="relative aspect-2/3 overflow-hidden rounded-2xl bg-white will-change-transform">
                 <img
                     alt={game.name}
@@ -42,6 +86,12 @@
                         </div>
                     </div>
                 </div>
+
+                {#if highlightedIndex === index}
+                    <div
+                        class="pointer-events-none absolute inset-0 rounded-2xl ring-4 ring-primary ring-inset">
+                    </div>
+                {/if}
             </div>
         </a>
     {/each}

@@ -19,12 +19,12 @@
     let leverActive = $state(false);
     let leverPressed = $state(false);
 
-    let gameListRef = $state<
-        | {
-              spinToRandomGame: () => Promise<number>;
-          }
-        | undefined
-    >();
+    type GameRef = { spinToRandomGame: () => Promise<number> } | undefined;
+
+    let gameListRef = $state<GameRef>();
+    let gameGridRef = $state<GameRef>();
+
+    let activeGameRef = $derived(listMode === "list" ? gameListRef : gameGridRef);
 
     let searchQuery = $state("");
     let filteredGames = $derived(
@@ -103,9 +103,9 @@
                 <GameList bind:this={gameListRef} games={filteredGames} />
             {/key}
         {:else}
-            <GameGrid games={filteredGames} />
+            <GameGrid bind:this={gameGridRef} games={filteredGames} />
         {/if}
     </div>
 </div>
 
-<Lever active={leverActive} {gameListRef} />
+<Lever active={leverActive} gameRef={activeGameRef} />

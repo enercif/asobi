@@ -3,14 +3,14 @@
 
     interface Props {
         active: boolean;
-        gameListRef?:
+        gameRef?:
             | {
                   spinToRandomGame: () => Promise<number>;
               }
             | undefined;
     }
 
-    let { active, gameListRef }: Props = $props();
+    let { active, gameRef }: Props = $props();
 
     let leverHandle: HTMLButtonElement;
     let leverOffset = $state(0);
@@ -47,7 +47,7 @@
     }
 
     async function activateLever() {
-        if (isLeverAnimating || isLeverLocked || !gameListRef) {
+        if (isLeverAnimating || isLeverLocked || !gameRef) {
             return;
         }
 
@@ -57,7 +57,7 @@
         isLeverLocked = true;
         leverOffset = maxLeverPull;
 
-        await gameListRef.spinToRandomGame();
+        await gameRef.spinToRandomGame();
 
         isLeverLocked = false;
         resetLever();
