@@ -1,5 +1,7 @@
 <script lang="ts">
     import { gamesList } from "$lib/games/gameslist";
+    import { globalSettings } from "$lib/state/settings.state.svelte";
+    import type { ListStyle } from "$lib/types/settings.type";
     import GameGrid from "$lib/ui/game-grid.svelte";
     import GameList from "$lib/ui/game-list.svelte";
     import Lever from "$lib/ui/lever.svelte";
@@ -11,9 +13,9 @@
         SearchIcon,
     } from "@lucide/svelte";
 
-    let listMode: "grid" | "list" = $state("list");
+    let listMode: ListStyle = $derived(globalSettings.current.listStyle);
 
-    let showFavorites = $state(false);
+    let showFavorites = $derived(globalSettings.current.showFavoritesOnly);
     let favouritePressed = $state(false);
 
     let leverActive = $state(false);
@@ -24,7 +26,7 @@
     let gameListRef = $state<GameRef>();
     let gameGridRef = $state<GameRef>();
 
-    let activeGameRef = $derived(listMode === "list" ? gameListRef : gameGridRef);
+    let activeGameRef = $derived(listMode === "carousel" ? gameListRef : gameGridRef);
 
     let searchQuery = $state("");
     let filteredGames = $derived(
@@ -32,11 +34,12 @@
     );
 
     function toggleListMode() {
-        listMode = listMode === "list" ? "grid" : "list";
+        globalSettings.current.listStyle =
+            globalSettings.current.listStyle === "carousel" ? "grid" : "carousel";
     }
 
     function handleFavoriteClick() {
-        showFavorites = !showFavorites;
+        globalSettings.current.showFavoritesOnly = !globalSettings.current.showFavoritesOnly;
         favouritePressed = true;
 
         setTimeout(() => {
@@ -67,7 +70,7 @@
             class="relative flex size-12 shrink-0 items-center justify-center rounded-lg bg-white"
             onclick={toggleListMode}>
             <GalleryHorizontalIcon
-                data-active={listMode === "list"}
+                data-active={listMode === "carousel"}
                 size={28}
                 class="absolute scale-0 rotate-90 transition-all duration-300 ease-out data-[active=true]:scale-100 data-[active=true]:rotate-0" />
             <LayoutGridIcon
@@ -98,7 +101,7 @@
     </div>
 
     <div class="relative min-h-0 flex-1">
-        {#if listMode === "list"}
+        {#if listMode === "carousel"}
             {#key filteredGames}
                 <GameList bind:this={gameListRef} games={filteredGames} />
             {/key}
