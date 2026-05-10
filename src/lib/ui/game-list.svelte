@@ -17,8 +17,7 @@
     let { games }: Props = $props();
 
     let carousel: HTMLDivElement;
-    let slideElements: HTMLAnchorElement[] = $state([]);
-    let cardElements: HTMLDivElement[] = $state([]);
+    let cardElements: HTMLDivElement[] = [];
 
     let currentIndex = $state(0);
     let isSpinning = $state(false);
@@ -70,22 +69,20 @@
     }
 
     onMount(() => {
-        if (!carousel || slideElements.length === 0) {
-            return;
-        }
+        if (!carousel) return;
 
         gsap.set(carousel, { overflow: "visible", scrollSnapType: "none" });
+
+        const slideElements = carousel.querySelectorAll<HTMLElement>("[data-slide]");
 
         const updateCardTilt = () => {
             const viewportRect = carousel.getBoundingClientRect();
             const viewportCenterX = viewportRect.left + viewportRect.width / 2;
 
-            slideElements.forEach((slide, index) => {
+            carousel.querySelectorAll<HTMLElement>("[data-slide]").forEach((slide, index) => {
                 const card = cardElements[index];
 
-                if (!card) {
-                    return;
-                }
+                if (!card) return;
 
                 const rect = slide.getBoundingClientRect();
                 const slideCenterX = rect.left + rect.width / 2;
@@ -102,29 +99,27 @@
             });
         };
 
-        if (slideElements.length === 1) {
-            updateCardTilt();
-            return;
-        }
-
-        loop = horizontalLoop(
-            slideElements,
-            {
-                center: true,
-                draggable: true,
-                onChange: (_, index) => {
-                    currentIndex = index;
-                },
-                paused: true,
-            },
-            updateCardTilt,
-        );
-
-        loop?.toIndex(0, { duration: 0 });
-        updateCardTilt();
-
         const handleResize = () => updateCardTilt();
         window.addEventListener("resize", handleResize);
+
+        if (slideElements.length > 1) {
+            loop = horizontalLoop(
+                slideElements,
+                {
+                    center: true,
+                    draggable: true,
+                    onChange: (_, index) => {
+                        currentIndex = index;
+                    },
+                    paused: true,
+                },
+                updateCardTilt,
+            );
+
+            loop?.toIndex(0, { duration: 0 });
+        }
+
+        updateCardTilt();
 
         return () => {
             window.removeEventListener("resize", handleResize);
@@ -153,7 +148,7 @@
         ]}>
         {#each games as game, index (game.link + game.name)}
             <a
-                bind:this={slideElements[index]}
+                data-slide
                 href={game.link}
                 aria-current={currentIndex === index ? "true" : undefined}
                 class={[

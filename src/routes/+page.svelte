@@ -99,7 +99,9 @@
 
     <div class="relative min-h-0 flex-1">
         {#if listMode === "list"}
-            <GameList bind:this={gameListRef} games={filteredGames} />
+            {#key filteredGames}
+                <GameList bind:this={gameListRef} games={filteredGames} />
+            {/key}
         {:else}
             <GameGrid games={filteredGames} />
         {/if}
