@@ -8,7 +8,7 @@
 
     let { games }: Props = $props();
 
-    let cardElements: HTMLDivElement[] = [];
+    let cardElements: HTMLDivElement[] = $state([]);
     let highlightedIndex = $state(-1);
     let isSpinning = $state(false);
 
