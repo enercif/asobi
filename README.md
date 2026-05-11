@@ -1,7 +1,6 @@
 # Asobi
 
-<table border="0"><tr>
-<td valign="middle">
+<img src="static/readme-icon.png" width="30%" align="right"/>
 
 Asobi is a mobile-first progressive web app for playing party games together — whether you're passing a single device around or connecting multiple phones via WebSockets for a seamless shared experience.
 All games and content are completely free, with no ads, ever.
@@ -10,14 +9,15 @@ A native app is in the works to bring offline multi-peer connectivity, so the fu
 
 Want to help? Contributions are always welcome — whether that's translating the app into your language, adding new game content, building new games, or supporting the project with a donation.
 
-</td>
-<td valign="middle" width="30"></td>
-<td valign="middle" width="25%">
-<img src="static/readme-icon.png" width="100%"/>
-</td>
-</tr></table>
+## Table of Contents
 
-## Games
+- [Games](#games)
+- [Tech Stack](#tech)
+- [Getting Started](#start)
+- [Building](#build)
+- [Lib structure](#lib)
+
+## <a id="games"></a> Games
 
 | Game     | Status         |
 | -------- | -------------- |
@@ -26,7 +26,7 @@ Want to help? Contributions are always welcome — whether that's translating th
 | Werewolf | 🚧 Coming soon |
 | And More | 🚧 Coming soon |
 
-## Tech stack
+## <a id="tech"></a> Tech stack
 
 - **[SvelteKit](https://kit.svelte.dev/)** + **Svelte 5** (runes)
 - **[TypeScript](https://www.typescriptlang.org/)**
@@ -36,7 +36,7 @@ Want to help? Contributions are always welcome — whether that's translating th
 - **[Runed](https://runed.dev/)** — Svelte 5 utility primitives
 - **[Paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs)** — i18n
 
-## Getting started
+## <a id="start"></a> Getting started
 
 ```bash
 # Install dependencies
@@ -52,7 +52,7 @@ pnpm check
 pnpm format
 ```
 
-## Building
+## <a id="build"></a> Building
 
 ```bash
 pnpm build
@@ -61,7 +61,7 @@ pnpm preview
 
 The build targets Node.js via `adapter-node`. Output lands in `build/`.
 
-## Lib structure
+## <a id="lib"></a> Lib structure
 
 ```
 lib/
